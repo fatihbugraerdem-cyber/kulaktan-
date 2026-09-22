@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">Bağımsız Uzman Paneli | Kulaktan</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .page-hero { padding: 3.5rem 0 3rem; }
+        .lang-switch { background: transparent; border: 1px solid var(--line); color: var(--slate); font-family: var(--sans); font-size: 0.78rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: var(--radius); cursor: pointer; }
+        .lang-switch:hover { border-color: var(--ink); color: var(--ink); }
+        .login-wrap { max-width: 460px; }
+        .expert-dashboard { display: none; }
+        .expert-dashboard.active { display: block; }
+        .audit-box { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.85rem; max-height: 200px; overflow-y: auto; background: var(--ink); color: #9fd8ff; padding: 1.25rem; border-radius: var(--radius); line-height: 1.7; }
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(10,15,30,0.72); align-items: center; justify-content: center; padding: 1.5rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--surface); border-radius: var(--radius); max-width: 640px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 2.5rem; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan Uzman Portalı</a>
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <div style="display:flex; gap:0.4rem;">
+                    <button class="lang-switch" onclick="setLanguage('tr')">TR</button>
+                    <button class="lang-switch" onclick="setLanguage('en')">EN</button>
+                </div>
+                <div id="headerAuthStatus" style="display:none; align-items:center; gap:1rem;">
+                    <span id="expertBadgeName" class="label"></span>
+                    <button onclick="handleLogout()" class="btn btn-secondary" style="padding:0.5rem 1rem; font-size:0.82rem;" data-i18n="logout">Çıkış</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+
+            <div id="loginCard" class="login-wrap">
+                <span class="bar line-accent" style="width:44px;"></span>
+                <span class="label" data-i18n="login_subtitle" style="display:block; margin-bottom:0.5rem;">Bağımsız Hukuk & Denetim Portalı</span>
+                <h1 style="font-size:2rem; margin-bottom:0.75rem;" data-i18n="login_title">Uzman / Avukat Girişi</h1>
+                <p class="mt-2" data-i18n="login_desc">Size özel atanan şifreli dosyaları incelemek için giriş yapın.</p>
+
+                <form onsubmit="handleLogin(event)" class="panel panel-pad mt-4">
+                    <div class="field">
+                        <label data-i18n="select_expert">Kullanıcı Adı</label>
+                        <input type="text" id="expertUsername" placeholder="Örn. ahmet.yilmaz" required>
+                    </div>
+                    <div class="field">
+                        <label data-i18n="pass_key">Şifre</label>
+                        <input type="password" id="expertPass" placeholder="••••••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" data-i18n="login_btn">Güvenli Uzman Oturumu Aç</button>
+                    <div id="expertErrorMsg" style="display:none; color:#8c2b30; margin-top:1rem; font-size:0.88rem;"></div>
+                    <div style="text-align:center; margin-top:1.25rem;">
+                        <a href="#" onclick="toggleForgotPanel(event)" class="text-link" style="font-size:0.85rem;">Şifremi unuttum</a>
+                    </div>
+                </form>
+
+                <div id="forgotPanel" class="panel panel-pad mt-2" style="display:none;">
+                    <div class="field">
+                        <label>Kullanıcı Adınız</label>
+                        <input type="text" id="forgotUsername" placeholder="ahmet.yilmaz">
+                    </div>
+                    <button type="button" onclick="requestPasswordReset()" class="btn btn-secondary btn-block">Sıfırlama Bağlantısı Gönder</button>
+                    <div id="forgotMsg" style="display:none; margin-top:1rem; font-size:0.88rem;"></div>
+                </div>
+            </div>
+
+            <div id="expertDashboard" class="expert-dashboard">
+                <span class="label" data-i18n="workspace_subtitle" style="display:block; margin-bottom:0.5rem;">Assigned Expert Workspace</span>
+                <h1 id="welcomeTitle" style="font-size:2rem;">Hoş Geldiniz</h1>
+                <p class="mt-2" data-i18n="workspace_desc">Tarafınıza yönlendirilen şifreli bildirimleri inceleyin, ihbarcı ile mesajlaşın ve mütalaanızı sunun.</p>
+
+                <div class="panel panel-pad mt-4">
+                    <h2 style="font-size:1.3rem; margin-bottom:1.5rem;" data-i18n="assigned_files">Tarafınıza Atanan Soruşturma Dosyaları</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th data-i18n="th_code">Dosya Kodu</th>
+                                <th data-i18n="th_cat">Kategori</th>
+                                <th data-i18n="th_summary">İhbar Özeti</th>
+                                <th data-i18n="th_status">Mevcut Durum</th>
+                                <th data-i18n="th_action">İşlem & Mütalaa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assignedFilesTable"></tbody>
+                    </table>
+                </div>
+
+                <div class="panel panel-pad mt-4">
+                    <h2 style="font-size:1.1rem; margin-bottom:1.25rem;">ISO 37002 Denetim İzi</h2>
+                    <div id="auditTrailBox" class="audit-box"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="expertModal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="label" data-i18n="modal_subtitle" style="display:block; margin-bottom:0.5rem;">Hukuki Mütalaa & İhbarcı Mesajlaşması</span>
+            <h2 id="modalCode" style="font-size:1.8rem; margin-bottom:1.25rem;">KLT-2026-XXXX</h2>
+
+            <p style="margin-bottom:1.5rem;"><strong style="color:var(--ink)">Özet:</strong> <span id="modalSummaryText">-</span></p>
+
+            <label class="label" data-i18n="chat_label" style="display:block; margin-bottom:0.5rem;">İhbarcı ile Gizli Soru-Cevap Hattı:</label>
+            <div class="chat-box" id="expertChatMessages"></div>
+            <div class="chat-input-row">
+                <input type="text" id="expertChatInput" placeholder="İhbarcıya ek soru veya mesaj yazın...">
+                <button onclick="sendExpertChatMessage()" class="btn btn-primary" data-i18n="send_btn">Gönder</button>
+            </div>
+
+            <div class="field mt-4">
+                <label data-i18n="opinion_label">Uzman Hukuki Görüşü ve Tavsiye Raporu:</label>
+                <textarea id="expertOpinionInput" rows="4" placeholder="Dosya kapsamındaki bulgular incelenmiştir. TTK m. 369 çerçevesinde..."></textarea>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeExpertModal()" class="btn btn-secondary" style="flex:1;" data-i18n="cancel_btn">İptal</button>
+                <button onclick="submitOpinionToAdmin()" class="btn btn-primary" style="flex:2;" data-i18n="submit_opinion_btn">Görüşü Admin'e Gönder & Onaya Sun</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            tr: {
+                title: "Bağımsız Uzman Paneli | Kulaktan",
+                logout: "Çıkış",
+                login_subtitle: "Bağımsız Hukuk & Denetim Portalı",
+                login_title: "Uzman / Avukat Girişi",
+                login_desc: "Size özel atanan şifreli dosyaları incelemek için giriş yapın.",
+                select_expert: "Kullanıcı Adı",
+                pass_key: "Şifre",
+                login_btn: "Güvenli Uzman Oturumu Aç",
+                workspace_subtitle: "Assigned Expert Workspace",
+                workspace_desc: "Tarafınıza yönlendirilen şifreli bildirimleri inceleyin, ihbarcı ile mesajlaşın ve mütalaanızı sunun.",
+                assigned_files: "Tarafınıza Atanan Soruşturma Dosyaları",
+                th_code: "Dosya Kodu",
+                th_cat: "Kategori",
+                th_summary: "İhbar Özeti",
+                th_status: "Mevcut Durum",
+                th_action: "İşlem & Mütalaa",
+                modal_subtitle: "Hukuki Mütalaa & İhbarcı Mesajlaşması",
+                chat_label: "İhbarcı ile Gizli Soru-Cevap Hattı:",
+                send_btn: "Gönder",
+                opinion_label: "Uzman Hukuki Görüşü ve Tavsiye Raporu:",
+                cancel_btn: "İptal",
+                submit_opinion_btn: "Görüşü Admin'e Gönder & Onaya Sun"
+            },
+            en: {
+                title: "Independent Expert Portal | Kulaktan",
+                logout: "Logout",
+                login_subtitle: "Independent Legal & Audit Portal",
+                login_title: "Expert / Attorney Login",
+                login_desc: "Sign in to review your assigned encrypted files.",
+                select_expert: "Username",
+                pass_key: "Password",
+                login_btn: "Open Secure Expert Session",
+                workspace_subtitle: "Assigned Expert Workspace",
+                workspace_desc: "Review assigned encrypted reports, chat anonymously with whistleblowers, and submit your legal opinion.",
+                assigned_files: "Assigned Investigation Files",
+                th_code: "Case Code",
+                th_cat: "Category",
+                th_summary: "Summary",
+                th_status: "Status",
+                th_action: "Action & Opinion",
+                modal_subtitle: "Legal Opinion & Whistleblower Chat",
+                chat_label: "Secure Q&A Tunnel with Whistleblower:",
+                send_btn: "Send",
+                opinion_label: "Expert Legal Opinion & Recommendation Report:",
+                cancel_btn: "Cancel",
+                submit_opinion_btn: "Submit Opinion to Admin & Board"
+            }
+        };
+
+        function setLanguage(lang) {
+            localStorage.setItem('kulaktan_lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.textContent = translations[lang][key];
+            });
+        }
+
+        let loggedExpertName = '';
+        let currentCaseCode = '';
+
+        function getCsrfToken() {
+            const match = document.cookie.match(/(?:^|; )kulaktan_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        async function api(path, opts = {}) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (opts.method && opts.method !== 'GET') headers['X-CSRF-Token'] = getCsrfToken();
+            const resp = await fetch(path, { headers, ...opts });
+            const data = await resp.json();
+            if (!resp.ok || !data.success) throw new Error(data.error || 'İstek başarısız oldu.');
+            return data;
+        }
+
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function toggleForgotPanel(e) {
+            e.preventDefault();
+            const panel = document.getElementById('forgotPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function requestPasswordReset() {
+            const username = document.getElementById('forgotUsername').value.trim();
+            const msg = document.getElementById('forgotMsg');
+            try {
+                const data = await api('/api/auth/request-reset', { method: 'POST', body: JSON.stringify({ username }) });
+                msg.textContent = data.message;
+                msg.style.color = '#2f5c3e';
+                msg.style.display = 'block';
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.style.color = '#8c2b30';
+                msg.style.display = 'block';
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('expertUsername').value.trim();
+            const password = document.getElementById('expertPass').value;
+            const errBox = document.getElementById('expertErrorMsg');
+            errBox.style.display = 'none';
+
+            try {
+                const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+                if (data.role !== 'expert') throw new Error('Bu hesap uzman yetkisine sahip değil.');
+
+                loggedExpertName = data.name;
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('expertDashboard').classList.add('active');
+                document.getElementById('headerAuthStatus').style.display = 'flex';
+                document.getElementById('welcomeTitle').textContent = `Hoş Geldiniz, ${loggedExpertName}`;
+                document.getElementById('expertBadgeName').textContent = `Oturum: ${loggedExpertName}`;
+
+                await loadAssignedCases();
+                await renderAuditTrail();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
+                errBox.textContent = err.message;
+                errBox.style.display = 'block';
+            }
+        }
+
+        async function handleLogout() {
+            await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
+            document.getElementById('expertDashboard').classList.remove('active');
+            document.getElementById('headerAuthStatus').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function renderAuditTrail() {
+            const data = await api('/api/expert/audit');
+            const box = document.getElementById('auditTrailBox');
+            box.innerHTML = data.logs.map(l => `<div>[${l.created_at}] DOSYA: ${l.case_code} | AKTÖR: ${l.actor} | İŞLEM: ${l.action}</div>`).join('') || '<div>Henüz kayıt yok.</div>';
+        }
+
+        let casesCache = [];
+
+        async function loadAssignedCases() {
+            const data = await api('/api/expert/cases');
+            casesCache = data.cases;
+            const tbody = document.getElementById('assignedFilesTable');
+            tbody.innerHTML = '';
+
+            if (casesCache.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--slate); padding:2rem;">Tarafınıza atanmış aktif dosya bulunmamaktadır.</td></tr>`;
+                return;
+            }
+
+            casesCache.forEach(c => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${c.code}</strong></td>
+                        <td>${c.category}</td>
+                        <td>${c.summary}</td>
+                        <td><span class="status status-progress">${c.status}</span></td>
+                        <td><a href="#" class="text-link" onclick="openExpertModal('${c.code}')">Dosyayı Aç & Mütalaa Yaz</a></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openExpertModal(code) {
+            currentCaseCode = code;
+            const c = casesCache.find(x => x.code === code);
+            if (!c) return;
+
+            document.getElementById('modalCode').textContent = c.code;
+            document.getElementById('modalSummaryText').textContent = c.summary;
+            document.getElementById('expertOpinionInput').value = c.opinion === 'Henüz mütalaa yazılmadı.' ? '' : c.opinion;
+
+            const chatBox = document.getElementById('expertChatMessages');
+            if (c.messages && c.messages.length > 0) {
+                chatBox.innerHTML = c.messages.map(m => {
+                    const cls = m.sender === 'expert' ? 'msg-expert' : 'msg-whistleblower';
+                    const name = m.sender === 'expert' ? 'Uzman (Siz)' : 'İhbarcı (Gizli)';
+                    return `<div class="chat-msg ${cls}"><strong>${name}:</strong> ${escapeHtml(m.text)}</div>`;
+                }).join('');
+            } else {
+                chatBox.innerHTML = `<div class="chat-msg msg-expert"><strong>Sistem:</strong> İhbarcı ile güvenli tünel açık. Henüz mesaj gönderilmedi.</div>`;
+            }
+
+            document.getElementById('expertModal').classList.add('active');
+        }
+
+        function closeExpertModal() {
+            document.getElementById('expertModal').classList.remove('active');
+        }
+
+        async function sendExpertChatMessage() {
+            const input = document.getElementById('expertChatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                await api('/api/expert/message', { method: 'POST', body: JSON.stringify({ code: currentCaseCode, text }) });
+                const chatBox = document.getElementById('expertChatMessages');
+                chatBox.innerHTML += `<div class="chat-msg msg-expert"><strong>Uzman (Siz):</strong> ${escapeHtml(text)}</div>`;
+                input.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+                await loadAssignedCases();
+            } catch (err) {
+                alert('Hata: ' + err.message);
+            }
+        }
+
+        async function submitOpinionToAdmin() {
+            const opinion = document.getElementById('expertOpinionInput').value.trim();
+            if (!opinion) {
+                alert('Lütfen geçerli bir hukuki görüş yazınız.');
+                return;
+            }
+
+            try {
+                await api('/api/expert/opinion', { method: 'POST', body: JSON.stringify({ code: currentCaseCode, opinion }) });
+                alert('Hukuki mütalaanız başarıyla Admin\'e iletildi ve denetim izine (Audit Trail) kaydedildi!');
+                closeExpertModal();
+                await loadAssignedCases();
+                await renderAuditTrail();
+            } catch (err) {
+                alert('Hata: ' + err.message);
+            }
+        }
+
+        window.onload = function() {
+            const savedLang = localStorage.getItem('kulaktan_lang') || 'tr';
+            setLanguage(savedLang);
+        }
+    </script>
+</body>
+</html>

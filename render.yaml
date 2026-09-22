@@ -1,0 +1,46 @@
+# Render Blueprint — tek tıkla dağıtım için.
+# Kullanım: bu repoyu GitHub/GitLab'a push edin, sonra Render Dashboard'da
+# "New +" -> "Blueprint" ile bu repoyu seçin. Render bu dosyayı okuyup
+# web servisini + kalıcı diski + gerekli ortam değişkenlerini otomatik kurar.
+#
+# Not: npm bağımlılığımız olmadığı için buildCommand yok — Render doğrudan
+# `node server.js` ile başlatır.
+services:
+  - type: web
+    runtime: node
+    name: kulaktan
+    plan: starter          # Ücretsiz planda kalıcı disk desteklenmiyor; SQLite
+                            # veritabanımız için kalıcı disk şart olduğundan
+                            # en az Starter plan gerekiyor.
+    region: frankfurt       # Türkiye'ye en yakın Render bölgesi (gerekirse değiştirin)
+    startCommand: node server.js
+    healthCheckPath: /
+    autoDeploy: true
+    domains:
+      - kulaktan.com.tr
+      - www.kulaktan.com.tr
+    disk:
+      name: kulaktan-data
+      mountPath: /var/data
+      sizeGB: 1             # SQLite dosyası için fazlasıyla yeterli; gerekirse büyütülebilir
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: KULAKTAN_DB_PATH
+        value: /var/data/kulaktan.db
+      - key: KULAKTAN_MASTER_KEY
+        generateValue: true   # Render otomatik olarak geçerli bir base64/256-bit anahtar üretir
+      - key: APP_BASE_URL
+        value: https://kulaktan.com.tr
+      # Aşağıdakileri Render Dashboard'dan "Environment" sekmesinde elle girin
+      # (gerçek değerleri bu dosyaya yazmayın, git'e gitmesin):
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: COMPLIANCE_EMAIL
+        sync: false
+      - key: BOARD_EMAIL
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false

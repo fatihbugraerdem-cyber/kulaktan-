@@ -1,0 +1,372 @@
+/* ==========================================================================
+   Kulaktan — Design System
+   Inspired by the editorial restraint of international law-firm sites:
+   left-aligned layouts, hairline structure, serif headlines + a precise
+   grotesk for everything else, one muted accent used sparingly.
+   Signature motif: the "redaction bar" — a small solid rectangle standing
+   in for a line of concealed text. Bullets, dividers and accents are all
+   drawn from this one shape, tying the visual language to the product's
+   actual subject: protected, confidential disclosure.
+   ========================================================================== */
+
+:root {
+  --ink: #0a0f1e;
+  --paper: #f2f3f6;
+  --surface: #ffffff;
+  --line: #d7d9e0;
+  --brass: #a9782e;
+  --slate: #5b6472;
+
+  --ink-05: rgba(10, 15, 30, 0.05);
+  --ink-10: rgba(10, 15, 30, 0.1);
+  --ink-40: rgba(10, 15, 30, 0.4);
+  --brass-10: rgba(169, 120, 46, 0.1);
+
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Archivo", -apple-system, "Segoe UI", sans-serif;
+
+  --container: 1180px;
+  --radius: 3px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+img { max-width: 100%; display: block; }
+
+/* ---- Typography ---------------------------------------------------- */
+
+h1, h2, h3, .serif {
+  font-family: var(--serif);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ink);
+}
+
+h1 { font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 480; }
+h2 { font-size: clamp(1.7rem, 3vw, 2.4rem); }
+h3 { font-size: 1.3rem; }
+
+p { margin: 0 0 1rem; max-width: 62ch; color: var(--slate); }
+p:last-child { margin-bottom: 0; }
+
+.lede {
+  font-size: 1.15rem;
+  color: var(--slate);
+  max-width: 46ch;
+}
+
+.label {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--slate);
+}
+
+/* ---- Redaction bar: the signature motif ----------------------------- */
+
+.bar {
+  display: inline-block;
+  height: 0.62em;
+  width: 1.4em;
+  background: var(--ink);
+  border-radius: 1px;
+  vertical-align: -0.08em;
+}
+.bar.brass { background: var(--brass); }
+.bar.sm { width: 0.7em; }
+.bar.line-accent {
+  display: block;
+  width: 44px;
+  height: 4px;
+  background: var(--brass);
+  border-radius: 1px;
+  margin-bottom: 1.5rem;
+}
+
+/* list bullets rendered as small redaction bars instead of round dots */
+ul.bars { list-style: none; margin: 0; padding: 0; }
+ul.bars li {
+  position: relative;
+  padding-left: 1.6rem;
+  margin-bottom: 0.85rem;
+  color: var(--slate);
+}
+ul.bars li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 12px;
+  height: 5px;
+  background: var(--brass);
+  border-radius: 1px;
+}
+
+/* one orchestrated reveal, used once on the hero — concealed text
+   becoming legible, echoing what protected disclosure actually does */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-bar {
+    animation: revealBar 900ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+  @keyframes revealBar {
+    from { width: 0; opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* ---- Layout ---------------------------------------------------------- */
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+@media (min-width: 900px) {
+  .container { padding: 0 2.5rem; }
+}
+
+.hairline { border-bottom: 1px solid var(--line); }
+.hairline-top { border-top: 1px solid var(--line); }
+
+section { padding: 4rem 0; }
+@media (min-width: 900px) { section { padding: 6rem 0; } }
+
+/* ---- Buttons ----------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+  line-height: 1;
+}
+.btn-primary { background: var(--ink); color: var(--surface); }
+.btn-primary:hover { background: #1a2338; }
+.btn-secondary { background: transparent; color: var(--ink); border-color: var(--ink); }
+.btn-secondary:hover { background: var(--ink); color: var(--surface); }
+.btn-brass { background: var(--brass); color: var(--surface); }
+.btn-brass:hover { background: #8f6526; }
+.btn-block { width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.text-link {
+  color: var(--ink);
+  font-weight: 600;
+  background-image: linear-gradient(var(--brass), var(--brass));
+  background-size: 0% 2px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  padding-bottom: 2px;
+  transition: background-size 200ms ease;
+}
+.text-link:hover { background-size: 100% 2px; }
+
+/* ---- Header / nav ------------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(242, 243, 246, 0.92);
+  backdrop-filter: blur(8px);
+}
+.site-header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 84px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.brand img { width: 32px; height: 32px; object-fit: contain; }
+
+.site-nav { display: flex; align-items: center; gap: 2.2rem; }
+.site-nav a {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--slate);
+  transition: color 150ms ease;
+}
+.site-nav a:hover { color: var(--ink); }
+.nav-toggle { display: none; }
+
+@media (max-width: 860px) {
+  .site-nav { display: none; }
+}
+
+/* ---- Cards / panels ------------------------------------------------------ */
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.panel-pad { padding: 2.5rem; }
+@media (min-width: 700px) { .panel-pad { padding: 3rem; } }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+
+/* ---- Forms --------------------------------------------------------------- */
+
+.field { margin-bottom: 1.4rem; }
+.field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.field .hint { font-size: 0.78rem; color: var(--slate); margin-top: 0.4rem; }
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="file"],
+input[type="color"],
+select,
+textarea {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 0.98rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 150ms ease;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--brass); }
+textarea { resize: vertical; min-height: 120px; font-family: var(--sans); }
+
+/* ---- Status badges: solid bars, not pills --------------------------------- */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem 0.35rem 0.55rem;
+  border-radius: 2px;
+}
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 1px; }
+.status-new { background: var(--brass-10); color: #7a5a1f; }
+.status-new::before { background: var(--brass); }
+.status-progress { background: #eef1f7; color: #35415c; }
+.status-progress::before { background: #35415c; }
+.status-done { background: #eef4ef; color: #2f5c3e; }
+.status-done::before { background: #2f5c3e; }
+.status-critical { background: #fbeced; color: #8c2b30; }
+.status-critical::before { background: #8c2b30; }
+
+/* ---- Tables --------------------------------------------------------------- */
+
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--slate);
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+td {
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.94rem;
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+
+/* ---- Footer ----------------------------------------------------------------- */
+
+.site-footer { background: var(--ink); color: rgba(255,255,255,0.7); padding: 3.5rem 0 2rem; }
+.site-footer a { color: rgba(255,255,255,0.85); }
+.site-footer a:hover { color: #fff; }
+.site-footer .brand { color: #fff; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+  padding-bottom: 2.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
+.footer-grid h4 { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; color: rgba(255,255,255,0.5); margin-bottom: 1rem; }
+.footer-grid ul { list-style: none; margin: 0; padding: 0; }
+.footer-grid li { margin-bottom: 0.65rem; font-size: 0.9rem; }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: rgba(255,255,255,0.5); flex-wrap: wrap; gap: 1rem; }
+
+/* ---- Chat (shared: takip.html whistleblower view, uzman.html expert view) - */
+
+.chat-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.chat-msg {
+  margin-bottom: 0.85rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+}
+.chat-msg:last-child { margin-bottom: 0; }
+.msg-whistleblower { background: var(--ink); color: #fff; margin-left: 2rem; }
+.msg-expert { background: var(--surface); border: 1px solid var(--line); margin-right: 2rem; }
+.chat-input-row { display: flex; gap: 0.75rem; margin-top: 1rem; }
+.chat-input-row input { flex: 1; }
+
+/* ---- Utility -------------------------------------------------------------- */
+
+.muted { color: var(--slate); }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.center { text-align: center; }
+.hidden { display: none !important; }
+.flex { display: flex; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-4 { margin-top: 2rem; }

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güvenlik Bilgilendirmesi | Kulaktan</title>
+    <meta name="description" content="Şifreleme, erişim kontrolü, denetim izi ve altyapı — Kulaktan güvenlik mimarisi iddia değil uygulama düzeyinde anlatılıyor.">
+    <link rel="canonical" href="https://kulaktan.com.tr/guvenlik.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kulaktan">
+    <meta property="og:title" content="Güvenlik Bilgilendirmesi">
+    <meta property="og:description" content="Şifreleme, erişim kontrolü, denetim izi ve altyapı — Kulaktan güvenlik mimarisi iddia değil uygulama düzeyinde anlatılıyor.">
+    <meta property="og:url" content="https://kulaktan.com.tr/guvenlik.html">
+    <meta property="og:image" content="https://kulaktan.com.tr/assets/og-image.jpg">
+    <meta property="og:locale" content="tr_TR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Güvenlik Bilgilendirmesi">
+    <meta name="twitter:description" content="Şifreleme, erişim kontrolü, denetim izi ve altyapı — Kulaktan güvenlik mimarisi iddia değil uygulama düzeyinde anlatılıyor.">
+    <meta name="twitter:image" content="https://kulaktan.com.tr/assets/og-image.jpg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .page-hero { padding: 3.5rem 0 2.5rem; }
+        .doc { max-width: 760px; }
+        .doc h2 { font-size: 1.5rem; margin-top: 3rem; margin-bottom: 1rem; }
+        .doc h2:first-of-type { margin-top: 2rem; }
+        .doc p { max-width: none; margin-bottom: 1rem; }
+        .doc table { margin: 1.5rem 0; }
+        .doc td, .doc th { padding: 0.6rem 1rem 0.6rem 0; }
+        .callout { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; font-size: 0.92rem; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan</a>
+            <nav class="site-nav">
+                <a href="/#portal" class="text-link">Bildirim Yap</a>
+                <a href="/takip.html" class="text-link">Şikayet Takibi</a>
+                <a href="/admin.html" class="text-link">Kurumsal Giriş</a>
+                <a href="/uzman.html" class="text-link">Bağımsız Uzman</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+            <span class="bar line-accent" style="width:44px;"></span>
+            <h1 style="font-size:2.4rem;">Güvenlik Bilgilendirmesi</h1>
+            <p class="lede mt-2">Bu sayfa, sistemin güvenlik mimarisini iddia değil uygulama düzeyinde, doğrulanabilir şekilde anlatır.</p>
+
+            <div class="doc mt-4">
+                <h2>Şifreleme</h2>
+                <p>İhbar özeti, uzman mütalaası, yönetim kurulu kararı ve dosya içi mesajlaşma, sunucuda <strong style="color:var(--ink)">AES-256-GCM</strong> algoritmasıyla, her kayıt için ayrı bir rastgele başlatma vektörü (IV) kullanılarak şifrelenir. Şifreleme anahtarı sunucu ortam değişkeninde tutulur ve veritabanı dosyasından ayrı saklanır.</p>
+                <div class="callout">
+                    <strong style="color:var(--ink)">Önemli sınır:</strong> Bu, uçtan uca (zero-knowledge) şifreleme <em>değildir</em>. Şifreleme sunucu tarafında, tek bir ana anahtarla yapılır. Bunun nedeni basit: atanan uzmanın ve kurumsal admin'in raporu okuyabilmesi gerekir — aksi halde inceleme süreci işleyemez. "Platform işletmecisi verinizi hiçbir koşulda göremez" iddiasında bulunmuyoruz çünkü bu doğru olmaz.
+                </div>
+
+                <h2>Erişim ve Yetkilendirme</h2>
+                <p>Şifreler geri döndürülemez biçimde (scrypt) hash'lenir; düz metin hiçbir yerde saklanmaz. Oturumlar rastgele üretilmiş, sunucu tarafında tutulan token'larla yönetilir. Her müşteri şirketin admin, uzman ve yönetim kurulu hesapları yalnızca kendi kurumlarının dosyalarına erişebilir — bu kontrol veritabanı sorgusunun kendisinin bir parçasıdır, ayrı bir izin katmanı değildir.</p>
+
+                <h2>Hesap Koruması</h2>
+                <p>Art arda 5 başarısız giriş denemesinden sonra hesap 15 dakikalığına geçici olarak kilitlenir. Şifre sıfırlama bağlantıları tek kullanımlıktır, 30 dakika geçerlidir ve kullanıldığında o hesaba ait tüm oturumlar sonlandırılır.</p>
+
+                <h2>Denetim İzi</h2>
+                <p>Sistemdeki her önemli işlem (atama, mütalaa sunumu, karar) bir denetim kaydı oluşturur. Her kayıt, kendisinden önceki kaydın özetini (hash) içerecek şekilde zincirlenir. Geçmişte bir kayıt sonradan değiştirilirse — veritabanına doğrudan müdahale edilse bile — bu zincir kırılır ve admin panelinde "Zincir Bütünlüğü" uyarısı olarak görünür.</p>
+                <div class="callout">
+                    Bu, kayıtları <em>tespit edilmeden</em> değiştirmeyi zorlaştırır; mutlak "değiştirilemezlik" iddiası değildir. Veritabanına tam erişimi olan biri teorik olarak zinciri baştan yeniden hesaplayabilir. Gerçek anlamda değiştirilemez bir denetim izi için kayıtların harici, salt-okunur bir sisteme düzenli olarak yansıtılması (anchor) gerekir.
+                </div>
+
+                <h2>Kanıt Dosyaları</h2>
+                <p>Yüklenen dosyalar boyut (15MB) ve dosya türü (PDF, Word, Excel, resim, metin/CSV) bakımından sınırlandırılır ve şifrelenmiş olarak saklanır.</p>
+
+                <h2>Altyapı</h2>
+                <p>Sistem, üçüncü parti bağımlılığı olmayan, Node.js'in kendi çekirdek modülleriyle yazılmıştır. Bu sayfa da dahil olmak üzere hiçbir sayfa harici JavaScript kütüphanesi yüklemez (yalnızca Google Fonts üzerinden yazı tipi yüklenir). Sunucu, sıkı bir İçerik Güvenlik Politikası (Content-Security-Policy) ile yanıt verir.</p>
+
+                <h2>Sorumluluk Sınırı</h2>
+                <p>Bu sayfa, sistemin teknik güvenlik mimarisini açıklar; hukuki bir güvence veya sertifikasyon beyanı değildir. ISO 37002 <em>ilkeleriyle uyumlu tasarlanmıştır</em> — bu, bir sertifikasyon iddiası değildir.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container footer-bottom" style="border-top:none; padding-top:0;">
+            <span>© 2026 Kulaktan. Tüm hakları saklıdır.</span>
+            <a href="/" class="text-link">Ana Sayfaya Dön</a>
+        </div>
+    </footer>
+</body>
+</html>

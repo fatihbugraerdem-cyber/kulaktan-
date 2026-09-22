@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetim Kurulu Girişi | Kulaktan</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .page-hero { padding: 3.5rem 0 3rem; }
+        .login-wrap { max-width: 460px; }
+        .command-center { display: none; }
+        .command-center.active { display: block; }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr; gap: 0; margin: 2.5rem 0 3.5rem; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+        @media (min-width: 780px) { .metrics-grid { grid-template-columns: repeat(3, 1fr); } }
+        .metric-card { padding: 1.75rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .metric-card .label { display: block; margin-bottom: 0.6rem; }
+        .metric-card h2 { font-size: 2.6rem; font-weight: 480; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(10,15,30,0.72); align-items: center; justify-content: center; padding: 1.5rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--surface); border-radius: var(--radius); max-width: 560px; width: 100%; padding: 2.5rem; position: relative; }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--slate); line-height: 1; }
+
+        .section-title { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+        .page-header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan YK Portalı</a>
+            <div id="headerAuthStatus" style="display:none; align-items:center; gap:1.25rem;">
+                <span id="boardSessionBadge" class="label"></span>
+                <button onclick="handleLogout()" class="btn btn-secondary" style="padding:0.5rem 1rem; font-size:0.82rem;">Çıkış</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+
+            <div id="loginCard" class="login-wrap">
+                <span class="bar line-accent" style="width:44px;"></span>
+                <span class="label" style="display:block; margin-bottom:0.5rem;">Yönetim Kurulu Yetkilendirmesi</span>
+                <h1 style="font-size:2rem; margin-bottom:0.75rem;">Yönetim Kurulu Girişi</h1>
+                <p class="mt-2">Denetim komuta merkezine erişmek için kimliğinizi giriniz.</p>
+
+                <form onsubmit="handleLogin(event)" class="panel panel-pad mt-4">
+                    <div class="field">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" id="adminUser" placeholder="board" required>
+                    </div>
+                    <div class="field">
+                        <label>Şifre</label>
+                        <input type="password" id="adminPass" placeholder="••••••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Güvenli Oturumu Başlat</button>
+                    <div id="errorMsg" style="display:none; color:#8c2b30; margin-top:1rem; font-size:0.88rem;"></div>
+                    <div style="text-align:center; margin-top:1.25rem;">
+                        <a href="#" onclick="toggleForgotPanel(event)" class="text-link" style="font-size:0.85rem;">Şifremi unuttum</a>
+                    </div>
+                </form>
+
+                <div id="forgotPanel" class="panel panel-pad mt-2" style="display:none;">
+                    <div class="field">
+                        <label>Kullanıcı Adınız</label>
+                        <input type="text" id="forgotUsername" placeholder="board">
+                    </div>
+                    <button type="button" onclick="requestPasswordReset()" class="btn btn-secondary btn-block">Sıfırlama Bağlantısı Gönder</button>
+                    <div id="forgotMsg" style="display:none; margin-top:1rem; font-size:0.88rem;"></div>
+                </div>
+            </div>
+
+            <div id="commandCenter" class="command-center">
+                <div class="page-header-row">
+                    <div>
+                        <span class="label" style="display:block; margin-bottom:0.5rem;">TRUSTED THIRD PARTY OPERATIONS</span>
+                        <h1 style="font-size:2rem;">Yönetim Kurulu & Denetim Komuta Merkezi</h1>
+                        <p class="mt-2">Uzman mütalaaları, yönetim kurulu karar ve önlem girişleri, komite raporları.</p>
+                    </div>
+                    <button onclick="downloadBoardReport()" class="btn btn-secondary">Komite Raporunu İndir</button>
+                </div>
+
+                <div class="metrics-grid">
+                    <div class="metric-card"><span class="label">TOPLAM DOSYA</span><h2 id="boardTotalCases">00</h2></div>
+                    <div class="metric-card"><span class="label">KARAR BEKLEYEN</span><h2 id="boardPendingCases">00</h2></div>
+                    <div class="metric-card"><span class="label">KAPATILAN DOSYA</span><h2 id="boardClosedCases">00</h2></div>
+                </div>
+
+                <div class="panel panel-pad">
+                    <div class="section-title">
+                        <h2 style="font-size:1.3rem;">Yönetim Kurulu İncelemesi ve Karar Kuyruğu</h2>
+                        <span class="label">CANLI SENKRONİZE</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dosya Kodu</th>
+                                <th>Kategori</th>
+                                <th>Uzman Mütalaası</th>
+                                <th>YK Kararı / Önlem</th>
+                                <th>Durum</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="boardTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="panel panel-pad mt-4" style="background:var(--paper);">
+                    <h2 style="font-size:1.05rem; margin-bottom:0.75rem;">Yasal Çerçeve Notu</h2>
+                    <p style="margin:0; font-size:0.92rem;">
+                        Bu platform, <strong style="color:var(--ink)">TTK m. 369</strong> (yönetim kurulunun özen ve bağlılık yükümlülüğü) ve <strong style="color:var(--ink)">m. 378</strong> (riskin erken teşhisi komitesi) kapsamındaki süreçlerin belgelenmesine ve izlenebilirliğine katkı sağlamak üzere tasarlanmıştır. Burada üretilen kayıtlar bir hukuki danışmanlık veya güvence beyanı yerine geçmez — nihai değerlendirme için bağımsız hukuk danışmanınıza başvurunuz.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="boardModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeBoardModal()">&times;</button>
+            <span class="label" style="display:block; margin-bottom:0.5rem;">ZORUNLU YÖNETİM KURULU KARAR & ÖNLEM FORMU</span>
+            <h2 id="modalCode" style="font-size:1.8rem; margin-bottom:1.25rem;">KLT-2026-XXXX</h2>
+
+            <div class="panel panel-pad mt-2" style="background:var(--paper); margin-bottom:1.5rem;">
+                <strong style="color:var(--ink)">Uzman Hukuki Mütalaası:</strong>
+                <p id="modalOpinionText" class="muted mt-2" style="margin:0;"></p>
+            </div>
+
+            <div class="field">
+                <label for="boardDecisionInput">Yönetim Kurulu Kararı ve Alınan Önlem (Zorunludur)</label>
+                <textarea id="boardDecisionInput" rows="4" placeholder="Şirketin aldığı önlemleri, DÖF planını veya disiplin sevk kararını detaylıca yazınız..." required></textarea>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeBoardModal()" class="btn btn-secondary" style="flex:1;">İptal</button>
+                <button onclick="submitBoardDecision()" class="btn btn-primary" style="flex:2;">Kararı Kaydet ve Dosyayı Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getCsrfToken() {
+            const match = document.cookie.match(/(?:^|; )kulaktan_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        async function api(path, opts = {}) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (opts.method && opts.method !== 'GET') headers['X-CSRF-Token'] = getCsrfToken();
+            const resp = await fetch(path, { headers, ...opts });
+            const data = await resp.json();
+            if (!resp.ok || !data.success) throw new Error(data.error || 'İstek başarısız oldu.');
+            return data;
+        }
+
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s || '';
+            return d.innerHTML;
+        }
+
+        function toggleForgotPanel(e) {
+            e.preventDefault();
+            const panel = document.getElementById('forgotPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function requestPasswordReset() {
+            const username = document.getElementById('forgotUsername').value.trim();
+            const msg = document.getElementById('forgotMsg');
+            try {
+                const data = await api('/api/auth/request-reset', { method: 'POST', body: JSON.stringify({ username }) });
+                msg.textContent = data.message;
+                msg.style.color = '#2f5c3e';
+                msg.style.display = 'block';
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.style.color = '#8c2b30';
+                msg.style.display = 'block';
+            }
+        }
+
+        let currentBoardCode = '';
+        let boardCasesCache = [];
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('adminUser').value.trim();
+            const password = document.getElementById('adminPass').value;
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+
+            try {
+                const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+                if (data.role !== 'board') throw new Error('Bu hesap yönetim kurulu yetkisine sahip değil.');
+
+                document.getElementById('boardSessionBadge').textContent = `Oturum: ${data.name}`;
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('commandCenter').classList.add('active');
+                document.getElementById('headerAuthStatus').style.display = 'flex';
+                await renderBoardTable();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        async function handleLogout() {
+            await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
+            document.getElementById('commandCenter').classList.remove('active');
+            document.getElementById('headerAuthStatus').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function statusClass(text) {
+            if (text.includes('Kapatıldı')) return 'status-done';
+            if (text.includes('Bekleniyor')) return 'status-new';
+            return 'status-progress';
+        }
+
+        async function renderBoardTable() {
+            const data = await api('/api/board/cases');
+            boardCasesCache = data.cases;
+            const tbody = document.getElementById('boardTableBody');
+            tbody.innerHTML = '';
+
+            let pending = 0, closed = 0;
+
+            boardCasesCache.forEach(c => {
+                let statusText = c.status;
+                if (c.status === 'YK Onaylandı' && !c.boardDecision) {
+                    statusText = 'YK İncelemesinde / Karar Bekleniyor';
+                    pending++;
+                } else if (c.boardDecision) {
+                    statusText = 'Dosya Kapatıldı / Arşivlendi';
+                    closed++;
+                }
+
+                const decisionText = c.boardDecision
+                    ? `<strong style="color:#2f5c3e;">${escapeHtml(c.boardDecision)}</strong>`
+                    : `<span style="color:#8c2b30; font-style:italic;">Karar girilmedi</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${c.code}</strong></td>
+                        <td>${c.category}</td>
+                        <td style="font-size:0.9rem;"><strong>${c.expert}</strong>: ${escapeHtml(c.opinion)}</td>
+                        <td style="font-size:0.9rem;">${decisionText}</td>
+                        <td><span class="status ${statusClass(statusText)}">${statusText}</span></td>
+                        <td>
+                            ${!c.boardDecision ? `<a href="#" class="text-link" onclick="openBoardModal('${c.code}')">Karar Ver</a>` : `<span class="muted" style="font-size:0.88rem;">Arşivlendi</span>`}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('boardTotalCases').textContent = String(boardCasesCache.length).padStart(2, '0');
+            document.getElementById('boardPendingCases').textContent = String(pending).padStart(2, '0');
+            document.getElementById('boardClosedCases').textContent = String(closed).padStart(2, '0');
+        }
+
+        function openBoardModal(code) {
+            const c = boardCasesCache.find(x => x.code === code);
+            if (!c) return;
+            currentBoardCode = code;
+            document.getElementById('modalCode').textContent = code;
+            document.getElementById('modalOpinionText').textContent = c.opinion;
+            document.getElementById('boardDecisionInput').value = '';
+            document.getElementById('boardModal').classList.add('active');
+        }
+
+        function closeBoardModal() {
+            document.getElementById('boardModal').classList.remove('active');
+        }
+
+        async function submitBoardDecision() {
+            const decision = document.getElementById('boardDecisionInput').value.trim();
+            if (!decision) {
+                alert('Yönetim kurulu kararı ve alınan önlem kutusu boş bırakılamaz! Karar girilmeden dosya kapatılamaz.');
+                return;
+            }
+
+            try {
+                await api('/api/board/decision', { method: 'POST', body: JSON.stringify({ code: currentBoardCode, decision }) });
+                alert('YK Kararı ve alınan önlemler başarıyla mühürlendi. Dosya statüsü "Dosya Kapatıldı / Arşivlendi" olarak güncellendi.');
+                closeBoardModal();
+                await renderBoardTable();
+            } catch (err) {
+                alert('Hata: ' + err.message);
+            }
+        }
+
+        function downloadBoardReport() {
+            let reportContent = `KULAKTAN - YÖNETİM KURULU ERKEN TEŞHİS VE UYUM KOMİTESİ RAPORU\n`;
+            reportContent += `Dayanak: TTK m. 369, m. 378 ve ISO 37002 ilkeleri\n`;
+            reportContent += `Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')}\n`;
+            reportContent += `---------------------------------------------------\n\n`;
+
+            boardCasesCache.forEach((c, index) => {
+                reportContent += `${index + 1}. Dosya Kodu: ${c.code}\n`;
+                reportContent += `   Kategori: ${c.category}\n`;
+                reportContent += `   Atanan Uzman: ${c.expert}\n`;
+                reportContent += `   Uzman Mütalaası: ${c.opinion}\n`;
+                reportContent += `   YK Kararı ve Alınan Önlem: ${c.boardDecision || 'Karar Bekleniyor'}\n`;
+                reportContent += `   Son Durum: ${c.boardDecision ? 'Dosya Kapatıldı / Arşivlendi' : 'YK İncelemesinde'}\n`;
+                reportContent += `   ---------------------------------------------------\n`;
+            });
+
+            const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Kulaktan_Risk_Erken_Teshis_Komite_Raporu_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        }
+    </script>
+</body>
+</html>

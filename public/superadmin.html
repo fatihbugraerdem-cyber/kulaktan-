@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Yönetimi | Kulaktan</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .page-hero { padding: 3.5rem 0 3rem; }
+        .login-wrap { max-width: 460px; }
+        .dashboard { display: none; }
+        .dashboard.active { display: block; }
+        .two-col { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+        @media (min-width: 900px) { .two-col { grid-template-columns: 1fr 1fr; } }
+        .color-swatch { display: inline-block; width: 16px; height: 16px; border-radius: 2px; vertical-align: -2px; margin-right: 0.5rem; border: 1px solid var(--line); }
+        .result-box { display: none; background: #eef4ef; border: 1px solid #cfe3d2; border-radius: var(--radius); padding: 1.25rem; margin-top: 1.5rem; font-size: 0.9rem; }
+        .result-box.active { display: block; }
+        .field-inline { display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; }
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(10,15,30,0.72); align-items: center; justify-content: center; padding: 1.5rem; }
+        .modal-box { background: var(--surface); border-radius: var(--radius); max-width: 440px; width: 100%; padding: 2.5rem; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan Platform</a>
+            <div id="headerAuthStatus" style="display:none; align-items:center; gap:1.25rem;">
+                <span id="sessionBadge" class="label"></span>
+                <button onclick="handleLogout()" class="btn btn-secondary" style="padding:0.5rem 1rem; font-size:0.82rem;">Çıkış</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+
+            <div id="loginCard" class="login-wrap">
+                <span class="bar line-accent" style="width:44px;"></span>
+                <h1 style="font-size:2rem; margin-bottom:0.75rem;">Platform Yönetimi Girişi</h1>
+                <p class="mt-2">Tüm müşteri organizasyonlarını yönetmek için süper-admin kimliğinizle giriş yapın.</p>
+
+                <form onsubmit="handleLogin(event)" class="panel panel-pad mt-4">
+                    <div class="field">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" id="loginUsername" required>
+                    </div>
+                    <div class="field">
+                        <label>Şifre</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
+                    <div id="loginError" style="display:none; color:#8c2b30; margin-top:1rem; font-size:0.88rem;"></div>
+                </form>
+            </div>
+
+            <div id="dashboard" class="dashboard">
+                <span class="label" style="display:block; margin-bottom:0.5rem;">PLATFORM YÖNETİMİ</span>
+                <h1 style="font-size:2rem;">Müşteri Organizasyonları</h1>
+
+                <div class="panel panel-pad mt-4">
+                    <h2 style="font-size:1.3rem; margin-bottom:1.5rem;">Kayıtlı Şirketler</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Şirket</th><th>Slug / Form Adresi</th><th>Marka Rengi</th><th>Dosya</th><th>Personel</th><th>Oluşturulma</th></tr>
+                        </thead>
+                        <tbody id="orgsTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="two-col mt-4">
+                    <div class="panel panel-pad">
+                        <h2 style="font-size:1.2rem; margin-bottom:1.5rem;">Yeni Şirket Ekle</h2>
+                        <form onsubmit="createOrg(event)">
+                            <div class="field">
+                                <label>Şirket Adı</label>
+                                <input type="text" id="newOrgName" placeholder="Acme Sanayi A.Ş." required>
+                            </div>
+                            <div class="field">
+                                <label>Slug (URL için)</label>
+                                <input type="text" id="newOrgSlug" placeholder="acme" pattern="[a-z0-9-]+" required>
+                                <span class="hint">İhbar formu: /o/&lt;slug&gt;</span>
+                            </div>
+                            <div class="field">
+                                <label>İlk Admin Adı</label>
+                                <input type="text" id="newOrgAdminName" placeholder="Acme Uyum Yöneticisi" required>
+                            </div>
+                            <div class="field">
+                                <label>İlk Admin E-postası</label>
+                                <input type="email" id="newOrgAdminEmail" placeholder="admin@acme.com" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Şirketi Oluştur</button>
+                        </form>
+                        <div id="createOrgResult" class="result-box"></div>
+                    </div>
+
+                    <div class="panel panel-pad">
+                        <h2 style="font-size:1.2rem; margin-bottom:1.5rem;">Mevcut Şirkete Personel Ekle</h2>
+                        <form onsubmit="addStaff(event)">
+                            <div class="field">
+                                <label>Şirket</label>
+                                <select id="staffOrgSlug" required></select>
+                            </div>
+                            <div class="field">
+                                <label>Rol</label>
+                                <select id="staffRole" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="expert">Uzman</option>
+                                    <option value="board">Yönetim Kurulu</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Ad Soyad</label>
+                                <input type="text" id="staffName" required>
+                            </div>
+                            <div class="field">
+                                <label>Kullanıcı Adı</label>
+                                <input type="text" id="staffUsername" required>
+                            </div>
+                            <div class="field">
+                                <label>E-posta</label>
+                                <input type="email" id="staffEmail" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Personel Ekle</button>
+                        </form>
+                        <div id="addStaffResult" class="result-box"></div>
+                    </div>
+                </div>
+
+                <div class="panel panel-pad mt-4">
+                    <h2 style="font-size:1.2rem; margin-bottom:0.5rem;">Marka Rengi Güncelle</h2>
+                    <p style="font-size:0.9rem; margin-bottom:1.5rem;">Bu renk, şirketin ihbar formunda (/o/&lt;slug&gt;) vurgu rengi olarak kullanılır.</p>
+                    <form onsubmit="updateBranding(event)" class="field-inline">
+                        <div class="field" style="margin:0; min-width:220px;">
+                            <label>Şirket</label>
+                            <select id="brandingOrgSlug" required></select>
+                        </div>
+                        <div class="field" style="margin:0;">
+                            <label>Renk</label>
+                            <input type="color" id="brandingColor" value="#0f172a" style="width:60px; height:44px; padding:2px;">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Güncelle</button>
+                    </form>
+                    <div id="brandingResult" class="result-box"></div>
+                </div>
+
+                <div class="panel panel-pad mt-4">
+                    <h2 style="font-size:1.2rem; margin-bottom:0.5rem;">Personel Yönetimi</h2>
+                    <p style="font-size:0.9rem; margin-bottom:1.5rem;">Bir şirket seçin, personelini görüntüleyin, düzenleyin veya silin.</p>
+                    <div class="field" style="max-width:400px;">
+                        <label>Şirket</label>
+                        <select id="staffListOrgSlug" onchange="loadStaffList()"></select>
+                    </div>
+                    <table>
+                        <thead><tr><th>Ad Soyad</th><th>Kullanıcı Adı</th><th>Rol</th><th>E-posta</th><th>İşlem</th></tr></thead>
+                        <tbody id="staffListBody"></tbody>
+                    </table>
+                    <div id="staffListMsg" class="result-box"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="editStaffModal" class="modal-overlay">
+        <div class="modal-box">
+            <h2 style="font-size:1.5rem; margin-bottom:1.5rem;">Personeli Düzenle</h2>
+            <input type="hidden" id="editStaffId">
+            <div class="field">
+                <label>Ad Soyad</label>
+                <input type="text" id="editStaffName" required>
+            </div>
+            <div class="field">
+                <label>E-posta</label>
+                <input type="email" id="editStaffEmail" required>
+            </div>
+            <div class="field">
+                <label>Rol</label>
+                <select id="editStaffRole" required>
+                    <option value="admin">Admin</option>
+                    <option value="expert">Uzman</option>
+                    <option value="board">Yönetim Kurulu</option>
+                </select>
+            </div>
+            <div id="editStaffError" style="display:none; color:#8c2b30; font-size:0.88rem; margin-bottom:1rem;"></div>
+            <div class="flex gap-2">
+                <button class="btn btn-primary" style="flex:1;" onclick="saveStaffEdit()">Kaydet</button>
+                <button class="btn btn-secondary" style="flex:1;" onclick="closeEditStaffModal()">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getCsrfToken() {
+            const match = document.cookie.match(/(?:^|; )kulaktan_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        async function api(path, opts = {}) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (opts.method && opts.method !== 'GET') headers['X-CSRF-Token'] = getCsrfToken();
+            const resp = await fetch(path, { headers, ...opts });
+            const data = await resp.json();
+            if (!resp.ok || !data.success) throw new Error(data.error || 'İstek başarısız oldu.');
+            return data;
+        }
+
+        let orgsCache = [];
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errBox = document.getElementById('loginError');
+            errBox.style.display = 'none';
+            try {
+                const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+                if (data.role !== 'superadmin') throw new Error('Bu hesap platform yönetimi yetkisine sahip değil.');
+                document.getElementById('sessionBadge').textContent = `Oturum: ${data.name}`;
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                document.getElementById('headerAuthStatus').style.display = 'flex';
+                await loadOrgs();
+            } catch (err) {
+                errBox.textContent = err.message;
+                errBox.style.display = 'block';
+            }
+        }
+
+        async function handleLogout() {
+            await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('headerAuthStatus').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'block';
+        }
+
+        async function loadOrgs() {
+            const data = await api('/api/superadmin/organizations');
+            orgsCache = data.organizations;
+            const tbody = document.getElementById('orgsTableBody');
+            tbody.innerHTML = orgsCache.map(o => `
+                <tr>
+                    <td><strong>${o.name}</strong></td>
+                    <td><a href="/o/${o.slug}" target="_blank" class="text-link">/o/${o.slug}</a></td>
+                    <td><span class="color-swatch" style="background:${o.primaryColor}"></span>${o.primaryColor}</td>
+                    <td>${o.caseCount}</td>
+                    <td>${o.staffCount}</td>
+                    <td class="muted" style="font-size:0.85rem;">${o.createdAt}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--slate); padding:2rem;">Henüz şirket yok.</td></tr>';
+
+            const options = orgsCache.map(o => `<option value="${o.slug}">${o.name} (/o/${o.slug})</option>`).join('');
+            document.getElementById('staffOrgSlug').innerHTML = options;
+            document.getElementById('brandingOrgSlug').innerHTML = options;
+            const staffListSelect = document.getElementById('staffListOrgSlug');
+            const prevSelection = staffListSelect.value;
+            staffListSelect.innerHTML = options;
+            if (orgsCache.some(o => o.slug === prevSelection)) staffListSelect.value = prevSelection;
+            if (staffListSelect.value) await loadStaffList();
+        }
+
+        async function loadStaffList() {
+            const slug = document.getElementById('staffListOrgSlug').value;
+            const tbody = document.getElementById('staffListBody');
+            if (!slug) { tbody.innerHTML = ''; return; }
+            try {
+                const data = await api(`/api/superadmin/organizations/${slug}/staff`);
+                const roleLabels = { admin: 'Admin', expert: 'Uzman', board: 'Yönetim Kurulu' };
+                tbody.innerHTML = data.staff.map(s => `
+                    <tr>
+                        <td>${s.name}</td>
+                        <td>${s.username}</td>
+                        <td>${roleLabels[s.role] || s.role}</td>
+                        <td>${s.email}</td>
+                        <td>
+                            <a href="#" class="text-link" onclick="openEditStaffModal(${s.id}, '${s.name.replace(/'/g, "\\'")}', '${s.email}', '${s.role}'); return false;">Düzenle</a>
+                            ·
+                            <a href="#" class="text-link" style="color:#8c2b30;" onclick="deleteStaff(${s.id}, '${s.name.replace(/'/g, "\\'")}'); return false;">Sil</a>
+                        </td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5" style="text-align:center; color:var(--slate); padding:1.5rem;">Bu şirkette personel yok.</td></tr>';
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:#8c2b30;">${err.message}</td></tr>`;
+            }
+        }
+
+        function openEditStaffModal(id, name, email, role) {
+            document.getElementById('editStaffId').value = id;
+            document.getElementById('editStaffName').value = name;
+            document.getElementById('editStaffEmail').value = email;
+            document.getElementById('editStaffRole').value = role;
+            document.getElementById('editStaffError').style.display = 'none';
+            document.getElementById('editStaffModal').style.display = 'flex';
+        }
+
+        function closeEditStaffModal() {
+            document.getElementById('editStaffModal').style.display = 'none';
+        }
+
+        async function saveStaffEdit() {
+            const id = document.getElementById('editStaffId').value;
+            const payload = {
+                name: document.getElementById('editStaffName').value.trim(),
+                email: document.getElementById('editStaffEmail').value.trim(),
+                role: document.getElementById('editStaffRole').value,
+            };
+            const errBox = document.getElementById('editStaffError');
+            try {
+                await api(`/api/superadmin/staff/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+                closeEditStaffModal();
+                await loadStaffList();
+            } catch (err) {
+                errBox.textContent = err.message;
+                errBox.style.display = 'block';
+            }
+        }
+
+        async function deleteStaff(id, name) {
+            if (!confirm(`${name} adlı personeli silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) return;
+            try {
+                await api(`/api/superadmin/staff/${id}`, { method: 'DELETE' });
+                await loadStaffList();
+            } catch (err) {
+                document.getElementById('staffListMsg').innerHTML = `<span style="color:#8c2b30">${err.message}</span>`;
+                document.getElementById('staffListMsg').classList.add('active');
+            }
+        }
+
+        async function createOrg(e) {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('newOrgName').value.trim(),
+                slug: document.getElementById('newOrgSlug').value.trim().toLowerCase(),
+                adminName: document.getElementById('newOrgAdminName').value.trim(),
+                adminEmail: document.getElementById('newOrgAdminEmail').value.trim(),
+            };
+            const resultBox = document.getElementById('createOrgResult');
+            try {
+                const data = await api('/api/superadmin/organizations', { method: 'POST', body: JSON.stringify(payload) });
+                resultBox.innerHTML = `<strong>${data.organization.name}</strong> oluşturuldu.<br>
+                    Admin kullanıcı adı: <strong>${data.admin.username}</strong><br>
+                    Admin şifresi: <strong>${data.admin.password}</strong><br>
+                    <em>${data.message}</em>`;
+                resultBox.classList.add('active');
+                e.target.reset();
+                await loadOrgs();
+            } catch (err) {
+                resultBox.innerHTML = `<span style="color:#8c2b30">${err.message}</span>`;
+                resultBox.classList.add('active');
+            }
+        }
+
+        async function addStaff(e) {
+            e.preventDefault();
+            const slug = document.getElementById('staffOrgSlug').value;
+            const payload = {
+                role: document.getElementById('staffRole').value,
+                name: document.getElementById('staffName').value.trim(),
+                username: document.getElementById('staffUsername').value.trim(),
+                email: document.getElementById('staffEmail').value.trim(),
+            };
+            const resultBox = document.getElementById('addStaffResult');
+            try {
+                const data = await api(`/api/superadmin/organizations/${slug}/staff`, { method: 'POST', body: JSON.stringify(payload) });
+                resultBox.innerHTML = `Kullanıcı adı: <strong>${data.username}</strong><br>Şifre: <strong>${data.password}</strong><br><em>${data.message}</em>`;
+                resultBox.classList.add('active');
+                e.target.reset();
+                await loadOrgs();
+                if (document.getElementById('staffListOrgSlug').value === slug) await loadStaffList();
+            } catch (err) {
+                resultBox.innerHTML = `<span style="color:#8c2b30">${err.message}</span>`;
+                resultBox.classList.add('active');
+            }
+        }
+
+        async function updateBranding(e) {
+            e.preventDefault();
+            const slug = document.getElementById('brandingOrgSlug').value;
+            const primaryColor = document.getElementById('brandingColor').value;
+            const resultBox = document.getElementById('brandingResult');
+            try {
+                await api(`/api/superadmin/organizations/${slug}/branding`, { method: 'POST', body: JSON.stringify({ primaryColor }) });
+                resultBox.innerHTML = 'Marka rengi güncellendi.';
+                resultBox.classList.add('active');
+                await loadOrgs();
+            } catch (err) {
+                resultBox.innerHTML = `<span style="color:#8c2b30">${err.message}</span>`;
+                resultBox.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

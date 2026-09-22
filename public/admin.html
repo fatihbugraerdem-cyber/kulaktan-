@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurumsal Giriş | Kulaktan</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .page-hero { padding: 3.5rem 0 3rem; }
+        .login-wrap { max-width: 460px; }
+        .admin-dashboard { display: none; }
+        .admin-dashboard.active { display: block; }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; margin: 2.5rem 0 3.5rem; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+        @media (min-width: 780px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
+        .metric-card { padding: 1.75rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .metric-card .label { display: block; margin-bottom: 0.6rem; }
+        .metric-card h2 { font-size: 2.6rem; font-weight: 480; }
+
+        .terminal { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.82rem; max-height: 220px; overflow-y: auto; background: var(--ink); color: #9fd8ff; padding: 1.25rem; border-radius: var(--radius); line-height: 1.75; }
+        .audit-terminal { color: #a7e3b0; }
+
+        .chain-badge { font-size: 0.78rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 2px; margin-left: 0.75rem; }
+        .chain-ok { background: #eef4ef; color: #2f5c3e; }
+        .chain-bad { background: #fbeced; color: #8c2b30; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(10,15,30,0.72); align-items: center; justify-content: center; padding: 1.5rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--surface); border-radius: var(--radius); max-width: 560px; width: 100%; padding: 2.5rem; position: relative; }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--slate); line-height: 1; }
+
+        .section-title { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan Kurumsal</a>
+            <div id="headerAuthStatus" style="display:none; align-items:center; gap:1.25rem;">
+                <span id="sessionBadge" class="label"></span>
+                <button onclick="handleLogout()" class="btn btn-secondary" style="padding:0.5rem 1rem; font-size:0.82rem;">Çıkış</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+
+            <div id="loginCard" class="login-wrap">
+                <span class="bar line-accent" style="width:44px;"></span>
+                <span class="label" style="display:block; margin-bottom:0.5rem;">Operasyonel Yetkilendirme</span>
+                <h1 style="font-size:2rem; margin-bottom:0.75rem;">Kurumsal / Uyum Girişi</h1>
+                <p class="mt-2">Gelen şifreli ihbar bildirimlerini yönetmek ve uzman atamak için yetkili kimliğinizi giriniz.</p>
+
+                <form onsubmit="handleLogin(event)" class="panel panel-pad mt-4">
+                    <div class="field">
+                        <label>Kullanıcı Adı</label>
+                        <input type="text" id="adminUser" placeholder="admin" required>
+                    </div>
+                    <div class="field">
+                        <label>Şifre</label>
+                        <input type="password" id="adminPass" placeholder="••••••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Panele Giriş Yap</button>
+                    <div id="errorMsg" style="display:none; color:#8c2b30; margin-top:1rem; font-size:0.88rem;"></div>
+                    <div style="text-align:center; margin-top:1.25rem;">
+                        <a href="#" onclick="toggleForgotPanel(event)" class="text-link" style="font-size:0.85rem;">Şifremi unuttum</a>
+                    </div>
+                </form>
+
+                <div id="forgotPanel" class="panel panel-pad mt-2" style="display:none;">
+                    <div class="field">
+                        <label>Kullanıcı Adınız</label>
+                        <input type="text" id="forgotUsername" placeholder="admin">
+                    </div>
+                    <button type="button" onclick="requestPasswordReset()" class="btn btn-secondary btn-block">Sıfırlama Bağlantısı Gönder</button>
+                    <div id="forgotMsg" style="display:none; margin-top:1rem; font-size:0.88rem;"></div>
+                </div>
+            </div>
+
+            <div id="adminDashboard" class="admin-dashboard">
+                <span class="label" style="display:block; margin-bottom:0.5rem;">WHISTLEBLOWER CASE MANAGEMENT</span>
+                <h1 style="font-size:2rem;">Operasyonel İhbar & Triyaj Yönetimi</h1>
+                <p class="mt-2">Uzman atama kuyruğu, e-posta bildirim merkezi ve denetim izi tek panelde.</p>
+
+                <div class="metrics-grid">
+                    <div class="metric-card"><span class="label">TOPLAM DOSYA</span><h2 id="totalCasesCount">00</h2></div>
+                    <div class="metric-card"><span class="label">UZMAN İNCELEMESİNDE</span><h2 id="inReviewCount">00</h2></div>
+                    <div class="metric-card"><span class="label">YK ONAYINA HAZIR</span><h2 id="readyBoardCount">00</h2></div>
+                    <div class="metric-card"><span class="label">GÖNDERİLEN E-POSTA</span><h2 id="emailCount">00</h2></div>
+                </div>
+
+                <div class="panel panel-pad">
+                    <div class="section-title">
+                        <h2 style="font-size:1.3rem;">Gelen Bildirimler ve Uzman Atama Kuyruğu</h2>
+                        <span class="label">CANLI SENKRONİZE</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dosya Kodu</th>
+                                <th>Kategori</th>
+                                <th>Atanan Uzman</th>
+                                <th>Durum</th>
+                                <th>Mütalaa</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="panel panel-pad mt-4">
+                    <h2 style="font-size:1.1rem; margin-bottom:1.25rem;">SMTP / Resend E-Posta Bildirim Kuyruğu</h2>
+                    <div class="terminal" id="emailTerminalLogs"></div>
+                </div>
+
+                <div class="panel panel-pad mt-4">
+                    <h2 style="font-size:1.1rem; margin-bottom:1.25rem; display:flex; align-items:center;">ISO 37002 Denetim İzi <span id="chainIntegrityBadge" class="chain-badge"></span></h2>
+                    <div class="terminal audit-terminal" id="adminAuditBox"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="adminModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeAdminModal()">&times;</button>
+            <span class="label" style="display:block; margin-bottom:0.5rem;">OPERASYONEL DOSYA YÖNETİMİ</span>
+            <h2 id="modalCode" style="font-size:1.8rem; margin-bottom:1.25rem;">KLT-2026-XXXX</h2>
+
+            <p style="margin-bottom:1.75rem;"><strong style="color:var(--ink)">Bildirim Özeti:</strong><br><span id="modalSummary" class="muted"></span></p>
+
+            <div class="panel panel-pad" style="background:var(--paper);">
+                <label for="expertSelect" style="display:block; font-weight:600; font-size:0.88rem; margin-bottom:0.75rem;">Dosyayı incelemesi için uzman ata (e-posta bildirimi tetiklenir):</label>
+                <select id="expertSelect"></select>
+                <button onclick="saveExpertAssignment()" class="btn btn-primary btn-block mt-4">Ata</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getCsrfToken() {
+            const match = document.cookie.match(/(?:^|; )kulaktan_csrf=([^;]*)/);
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        async function api(path, opts = {}) {
+            const headers = { 'Content-Type': 'application/json' };
+            if (opts.method && opts.method !== 'GET') headers['X-CSRF-Token'] = getCsrfToken();
+            const resp = await fetch(path, { headers, ...opts });
+            const data = await resp.json();
+            if (!resp.ok || !data.success) throw new Error(data.error || 'İstek başarısız oldu.');
+            return data;
+        }
+
+        function toggleForgotPanel(e) {
+            e.preventDefault();
+            const panel = document.getElementById('forgotPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function requestPasswordReset() {
+            const username = document.getElementById('forgotUsername').value.trim();
+            const msg = document.getElementById('forgotMsg');
+            try {
+                const data = await api('/api/auth/request-reset', { method: 'POST', body: JSON.stringify({ username }) });
+                msg.textContent = data.message;
+                msg.style.color = '#2f5c3e';
+                msg.style.display = 'block';
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.style.color = '#8c2b30';
+                msg.style.display = 'block';
+            }
+        }
+
+        let currentActiveCode = '';
+        let expertsCache = [];
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('adminUser').value.trim();
+            const password = document.getElementById('adminPass').value;
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+
+            try {
+                const data = await api('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+                if (data.role !== 'admin') throw new Error('Bu hesap admin yetkisine sahip değil.');
+
+                document.getElementById('sessionBadge').textContent = `Oturum: ${data.name}`;
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('adminDashboard').classList.add('active');
+                document.getElementById('headerAuthStatus').style.display = 'flex';
+                await Promise.all([loadExperts(), renderAdminTable(), renderEmailLogs(), renderAdminAudit()]);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        async function handleLogout() {
+            await api('/api/auth/logout', { method: 'POST' }).catch(() => {});
+            document.getElementById('adminDashboard').classList.remove('active');
+            document.getElementById('headerAuthStatus').style.display = 'none';
+            document.getElementById('loginCard').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function loadExperts() {
+            const data = await api('/api/admin/experts');
+            expertsCache = data.experts;
+            const select = document.getElementById('expertSelect');
+            select.innerHTML = expertsCache.map(x => `<option value="${x.id}">${x.name}</option>`).join('');
+        }
+
+        function statusClass(status) {
+            if (status.includes('Kritik')) return 'status-critical';
+            if (status.includes('Hazır') || status.includes('Onaylandı')) return 'status-new';
+            if (status.includes('Kapatıldı')) return 'status-done';
+            return 'status-progress';
+        }
+
+        async function renderAdminTable() {
+            const data = await api('/api/admin/cases');
+            const cases = data.cases;
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = '';
+
+            let inReview = 0;
+            let readyBoard = 0;
+
+            cases.forEach(c => {
+                if (c.status === 'Uzman İncelemesinde') inReview++;
+                if (c.status === 'YK Onayına Hazır' || c.status === 'YK Onaylandı') readyBoard++;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${c.code}</strong></td>
+                        <td>${c.category}</td>
+                        <td style="font-weight:600; color:${c.expert === 'Atanmadı' ? '#8c2b30' : 'var(--ink)'}">${c.expert}</td>
+                        <td><span class="status ${statusClass(c.status)}">${c.status}</span></td>
+                        <td class="muted" style="font-size:0.88rem;">${c.opinion}</td>
+                        <td>
+                            <a href="#" class="text-link" onclick="openAdminModal('${c.code}')">Yönet & Ata</a>
+                            ${c.status === 'YK Onayına Hazır' ? ` · <a href="#" class="text-link" onclick="approveForBoard('${c.code}')">YK'ya Sun</a>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('totalCasesCount').textContent = String(cases.length).padStart(2, '0');
+            document.getElementById('inReviewCount').textContent = String(inReview).padStart(2, '0');
+            document.getElementById('readyBoardCount').textContent = String(readyBoard).padStart(2, '0');
+        }
+
+        async function renderEmailLogs() {
+            const data = await api('/api/admin/emails');
+            const terminal = document.getElementById('emailTerminalLogs');
+            terminal.innerHTML = data.logs.map(l => `<div>[${l.created_at}] TO: ${l.to_email} | SUBJECT: ${l.subject} - ${l.status}</div>`).join('') || '<div>Henüz e-posta gönderilmedi.</div>';
+            document.getElementById('emailCount').textContent = String(data.logs.length).padStart(2, '0');
+        }
+
+        async function renderAdminAudit() {
+            const data = await api('/api/admin/audit');
+            const box = document.getElementById('adminAuditBox');
+            box.innerHTML = data.logs.map(l => `<div>[${l.created_at}] DOSYA: ${l.case_code || '-'} | AKTÖR: ${l.actor} | İŞLEM: ${l.action}</div>`).join('') || '<div>Henüz kayıt yok.</div>';
+
+            const badge = document.getElementById('chainIntegrityBadge');
+            if (data.chainIntact) {
+                badge.textContent = '✓ Zincir Bütünlüğü Doğrulandı';
+                badge.className = 'chain-badge chain-ok';
+            } else {
+                badge.textContent = '⚠ Zincir Bozulmuş — Müdahale Şüphesi!';
+                badge.className = 'chain-badge chain-bad';
+            }
+        }
+
+        function openAdminModal(code) {
+            currentActiveCode = code;
+            api('/api/admin/cases').then(data => {
+                const c = data.cases.find(x => x.code === code);
+                if (!c) return;
+                document.getElementById('modalCode').textContent = c.code;
+                document.getElementById('modalSummary').textContent = c.summary;
+                document.getElementById('adminModal').classList.add('active');
+            });
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        async function saveExpertAssignment() {
+            const expertId = Number(document.getElementById('expertSelect').value);
+            const expertName = expertsCache.find(x => x.id === expertId)?.name || '';
+            try {
+                await api('/api/admin/assign', { method: 'POST', body: JSON.stringify({ code: currentActiveCode, expertId }) });
+                await Promise.all([renderAdminTable(), renderEmailLogs(), renderAdminAudit()]);
+                closeAdminModal();
+                alert(`Dosya başarıyla ${expertName} adlı uzmana atandı ve bildirim e-postası kuyruğa eklendi.`);
+            } catch (err) {
+                alert('Hata: ' + err.message);
+            }
+        }
+
+        async function approveForBoard(code) {
+            try {
+                await api('/api/admin/approve-for-board', { method: 'POST', body: JSON.stringify({ code }) });
+                await Promise.all([renderAdminTable(), renderEmailLogs(), renderAdminAudit()]);
+                alert('Dosya ve uzman mütalaası Yönetim Kurulu Komuta Merkezine sunuldu, yönetim kurulu üyelerine bildirim e-postası iletildi.');
+            } catch (err) {
+                alert('Hata: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

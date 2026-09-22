@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Şikayet ve Süreç Takibi | Kulaktan</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .page-hero { padding: 3.5rem 0 3rem; }
+        .track-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; max-width: 640px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding: 1.5rem; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 2rem; }
+        .info-grid .label { display: block; margin-bottom: 0.25rem; }
+        .result-wrap { display: none; max-width: 720px; margin-top: 3rem; }
+        .result-wrap.active { display: block; }
+        .decision-box { background: #eef4ef; border: 1px solid #cfe3d2; border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; display: none; }
+        .decision-box.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan</a>
+            <nav class="site-nav">
+                <a href="/#portal" class="text-link">Bildirim Yap</a>
+                <a href="/takip.html" class="text-link">Şikayet Takibi</a>
+                <a href="/admin.html" class="text-link">Kurumsal Giriş</a>
+                <a href="/uzman.html" class="text-link">Bağımsız Uzman</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+            <span class="bar line-accent" style="width:44px;"></span>
+            <h1 style="font-size:2.4rem;">Şikayet ve Süreç Takibi</h1>
+            <p class="lede mt-2">Bildirim sırasında size verilen dosya kodu ve erişim anahtarını birlikte girerek dosyanızın güncel durumunu, uzman incelemesini ve yönetim kurulu kararını inceleyin.</p>
+
+            <div class="track-grid mt-4">
+                <form onsubmit="handleTrack(event)" class="panel panel-pad">
+                    <div class="field">
+                        <label for="trackCodeInput">Dosya Kodu</label>
+                        <input type="text" id="trackCodeInput" placeholder="KLT-2026-XXXX" required>
+                    </div>
+                    <div class="field">
+                        <label for="trackTokenInput">Erişim Anahtarı</label>
+                        <input type="text" id="trackTokenInput" placeholder="Bildirim sırasında size verilen anahtar" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Güvenli Sorgula</button>
+                </form>
+            </div>
+
+            <div id="resultBox" class="result-wrap">
+                <h2 id="resCode" style="font-size:1.8rem; margin-bottom:1.5rem;">KLT-2026-XXXX</h2>
+
+                <div class="info-grid">
+                    <div><span class="label">KATEGORİ</span><span id="resCategory" style="font-weight:600;">-</span></div>
+                    <div><span class="label">GÜNCEL DURUM</span><span id="resStatus" style="font-weight:600;">-</span></div>
+                    <div><span class="label">ATANAN UZMAN</span><span id="resExpert" style="font-weight:600;">-</span></div>
+                    <div><span class="label">ŞİFRELEME</span><span style="font-weight:600;">AES-256-GCM</span></div>
+                </div>
+
+                <div id="boardDecisionSection" class="decision-box">
+                    <h3 style="font-size:1.1rem; margin-bottom:0.5rem;">Yönetim Kurulu Nihai Karar ve Alınan Önlem</h3>
+                    <p id="resBoardDecision" style="margin:0;"></p>
+                </div>
+
+                <h3 style="font-size:1.1rem; margin-bottom:0.4rem;">Bağımsız Uzman ile Güvenli Yazışma</h3>
+                <p style="font-size:0.9rem;">Kimliğinizi açığa vurmadan uzmanın sorularını yanıtlayabilir veya ek bilgi sunabilirsiniz.</p>
+
+                <div class="chat-box" id="chatMessages"></div>
+                <div class="chat-input-row">
+                    <input type="text" id="chatInput" placeholder="Ek bilgi veya mesajınızı yazın...">
+                    <button onclick="sendChatMessage()" class="btn btn-primary">Gönder</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container footer-bottom" style="border-top:none; padding-top:0;">
+            <span>© 2026 Kulaktan. Tüm hakları saklıdır.</span>
+            <span>AES-256-GCM ile sunucuda şifreli saklama.</span>
+        </div>
+    </footer>
+
+    <script>
+        let currentCode = '';
+        let currentToken = '';
+
+        function renderMessages(messages) {
+            const chatBox = document.getElementById('chatMessages');
+            if (!messages || messages.length === 0) {
+                chatBox.innerHTML = `<div class="chat-msg msg-expert"><strong>Sistem:</strong> Bildiriminiz güvenli tünel üzerinden alınmıştır. İnceleme süreci yürütülmektedir.</div>`;
+                return;
+            }
+            chatBox.innerHTML = messages.map(m => {
+                const cls = m.sender === 'expert' ? 'msg-expert' : 'msg-whistleblower';
+                const name = m.sender === 'expert' ? 'Bağımsız Uzman' : 'İhbarcı (Siz)';
+                return `<div class="chat-msg ${cls}"><strong>${name}:</strong> ${escapeHtml(m.text)}</div>`;
+            }).join('');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function escapeHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        async function handleTrack(e) {
+            e.preventDefault();
+            const code = document.getElementById('trackCodeInput').value.trim().toUpperCase();
+            const token = document.getElementById('trackTokenInput').value.trim();
+
+            try {
+                const resp = await fetch(`/api/cases/track?code=${encodeURIComponent(code)}&token=${encodeURIComponent(token)}`);
+                const result = await resp.json();
+
+                if (!resp.ok || !result.success) {
+                    alert(result.error || 'Girilen koda ve anahtara ait bir dosya bulunamadı.');
+                    return;
+                }
+
+                currentCode = code;
+                currentToken = token;
+                const found = result.case;
+
+                document.getElementById('resCode').textContent = found.code;
+                document.getElementById('resCategory').textContent = found.category;
+                document.getElementById('resExpert').textContent = found.expert;
+
+                const statusSpan = document.getElementById('resStatus');
+                const boardSection = document.getElementById('boardDecisionSection');
+
+                if (found.boardDecision) {
+                    statusSpan.textContent = "Dosya Kapatıldı / Arşivlendi";
+                    document.getElementById('resBoardDecision').textContent = found.boardDecision;
+                    boardSection.classList.add('show');
+                } else if (found.status === 'YK Onaylandı') {
+                    statusSpan.textContent = "YK İncelemesinde / Karar Bekleniyor";
+                    boardSection.classList.remove('show');
+                } else {
+                    statusSpan.textContent = found.status;
+                    boardSection.classList.remove('show');
+                }
+
+                renderMessages(found.messages);
+                document.getElementById('resultBox').classList.add('active');
+                document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (err) {
+                alert('Sunucu bağlantı hatası. Lütfen tekrar deneyin.');
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !currentCode) return;
+
+            try {
+                const resp = await fetch('/api/cases/message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: currentCode, token: currentToken, text })
+                });
+                const result = await resp.json();
+                if (!resp.ok || !result.success) {
+                    alert(result.error || 'Mesaj gönderilemedi.');
+                    return;
+                }
+                const chatBox = document.getElementById('chatMessages');
+                chatBox.innerHTML += `<div class="chat-msg msg-whistleblower"><strong>İhbarcı (Siz):</strong> ${escapeHtml(text)}</div>`;
+                input.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (err) {
+                alert('Sunucu bağlantı hatası.');
+            }
+        }
+    </script>
+</body>
+</html>

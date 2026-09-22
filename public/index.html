@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kulaktan | Kurumsal Whistleblowing ve Uyum Platformu</title>
+    <meta name="description" content="Şirket içi anonim ihbar ve uyum yönetim platformu. Şifreli bildirim, bağımsız uzman incelemesi, yönetim kurulu kararı — tek sistemde.">
+    <link rel="canonical" href="https://kulaktan.com.tr/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kulaktan">
+    <meta property="og:title" content="Kulaktan | Kurumsal Whistleblowing ve Uyum Platformu">
+    <meta property="og:description" content="Şirket içi anonim ihbar ve uyum yönetim platformu. Şifreli bildirim, bağımsız uzman incelemesi, yönetim kurulu kararı — tek sistemde.">
+    <meta property="og:url" content="https://kulaktan.com.tr/">
+    <meta property="og:image" content="https://kulaktan.com.tr/assets/og-image.jpg">
+    <meta property="og:locale" content="tr_TR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kulaktan | Kurumsal Whistleblowing ve Uyum Platformu">
+    <meta name="twitter:description" content="Şirket içi anonim ihbar ve uyum yönetim platformu. Şifreli bildirim, bağımsız uzman incelemesi, yönetim kurulu kararı — tek sistemde.">
+    <meta name="twitter:image" content="https://kulaktan.com.tr/assets/og-image.jpg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .hero { padding: 4.5rem 0 5rem; }
+        @media (min-width: 960px) { .hero { padding: 6rem 0 6.5rem; } }
+        .hero-grid { display: flex; flex-direction: column; }
+        .hero-text { max-width: 640px; }
+        .hero h1 { margin-bottom: 1.5rem; }
+        .hero-ctas { display: flex; gap: 1rem; margin-top: 2.25rem; flex-wrap: wrap; }
+
+        .hero-visual { margin-top: 3.5rem; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+        .hero-visual img { width: 100%; height: auto; display: block; }
+
+        .steps { display: grid; grid-template-columns: 1fr; gap: 0; }
+        @media (min-width: 780px) { .steps { grid-template-columns: repeat(4, 1fr); } }
+        .step { padding: 2rem 1.75rem 2rem 0; border-top: 1px solid var(--line); }
+        @media (min-width: 780px) {
+            .step { border-top: none; border-left: 1px solid var(--line); padding: 0 1.75rem; }
+            .step:first-child { border-left: none; padding-left: 0; }
+        }
+        .step .num { font-family: var(--serif); font-size: 2.5rem; color: var(--brass); margin-bottom: 1rem; display: block; }
+        .step h3 { font-size: 1.05rem; margin-bottom: 0.6rem; }
+        .step p { font-size: 0.92rem; }
+
+        .trust-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; }
+        @media (min-width: 900px) { .trust-grid { grid-template-columns: 0.9fr 1.1fr; } }
+
+        .portal-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; }
+        @media (min-width: 960px) { .portal-grid { grid-template-columns: 0.8fr 1.2fr; } }
+        .field-row { display: grid; grid-template-columns: 1fr; gap: 1.4rem; }
+        @media (min-width: 620px) { .field-row.two { grid-template-columns: 1fr 1fr; } }
+
+        .notice {
+            display: flex; gap: 0.85rem; padding: 1.1rem 1.3rem;
+            background: var(--brass-10); border: 1px solid rgba(169,120,46,0.3);
+            border-radius: var(--radius); font-size: 0.86rem; color: #6b4e1e; margin-top: 1.5rem;
+        }
+
+        #toast {
+            position: fixed; bottom: 1.75rem; right: 1.75rem; z-index: 200;
+            background: var(--ink); color: #fff; font-size: 0.88rem;
+            padding: 1rem 1.5rem; border-radius: var(--radius);
+            display: flex; align-items: center; gap: 0.75rem;
+            transform: translateY(20px); opacity: 0; pointer-events: none;
+            transition: transform 250ms ease, opacity 250ms ease;
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 300; background: rgba(10,15,30,0.72);
+            display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+        }
+        .modal-box { background: var(--surface); border-radius: var(--radius); max-width: 480px; width: 100%; padding: 2.5rem; }
+        .receipt-row { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.85rem; }
+        .receipt-row .label { display: block; margin-bottom: 0.3rem; }
+        .receipt-row strong { font-size: 1rem; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan</a>
+            <nav class="site-nav">
+                <a href="#portal" class="text-link">Bildirim Yap</a>
+                <a href="/takip.html" class="text-link">Şikayet Takibi</a>
+                <a href="/admin.html" class="text-link">Kurumsal Giriş</a>
+                <a href="/uzman.html" class="text-link">Bağımsız Uzman</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-text">
+                <span class="bar line-accent reveal-bar" style="width:44px;"></span>
+                <h1>Kurumunuzda<br>duyulması gereken<br><em style="font-style:italic;">her ses.</em></h1>
+                <p class="lede">Kulaktan, çalışanların ve paydaşların usulsüzlük, mobbing ve uyum ihlallerini şirket yönetimine anonim ve şifreli biçimde iletebildiği; bağımsız uzman incelemesi ve yönetim kurulu kararıyla sonuçlanan bir ihbar ve uyum yönetim sistemidir.</p>
+                <div class="hero-ctas">
+                    <a href="#portal" class="btn btn-primary">Bildirim Yap</a>
+                    <a href="/takip.html" class="btn btn-secondary">Şikayet Takibi</a>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <img src="/assets/hero-visual.jpg" alt="Kulaktan — Şirket İçi Anonim İhbar Platformu: Bildirim, Değerlendirme, Çözüm süreci">
+            </div>
+        </div>
+    </section>
+
+    <section class="hairline-top hairline">
+        <div class="container">
+            <h2 style="margin-bottom:3rem;">Bildirimden karara, dört adım</h2>
+            <div class="steps">
+                <div class="step">
+                    <span class="num">01</span>
+                    <h3>Şifreli bildirim</h3>
+                    <p>Çalışan anonim olarak bildirimini gönderir; sunucuda AES-256-GCM ile şifrelenir, bir dosya kodu ve erişim anahtarı alır.</p>
+                </div>
+                <div class="step">
+                    <span class="num">02</span>
+                    <h3>Uzmana atama</h3>
+                    <p>Kurumun uyum yöneticisi dosyayı inceler ve bağımsız bir uzmana atar.</p>
+                </div>
+                <div class="step">
+                    <span class="num">03</span>
+                    <h3>Bağımsız inceleme</h3>
+                    <p>Uzman dosyayı inceler, gerekirse ihbarcıyla kimliğini açığa çıkarmadan yazışır, hukuki mütalaasını sunar.</p>
+                </div>
+                <div class="step">
+                    <span class="num">04</span>
+                    <h3>Yönetim kurulu kararı</h3>
+                    <p>Yönetim kurulu nihai kararı ve alınan önlemi kayda geçirir; ihbarcı süreci baştan sona takip edebilir.</p>
+                </div>
+            </div>
+            <a href="/nasil-calisir.html" class="text-link" style="display:inline-block; margin-top:2.5rem;">Soruşturma sürecinin tüm detaylarını okuyun →</a>
+        </div>
+    </section>
+
+    <section class="hairline">
+        <div class="container trust-grid">
+            <div>
+                <h2>Güvenlik, iddia değil<br>uygulamadır.</h2>
+                <p class="lede mt-4">Sisteme dair her güvenlik iddiası, kodun kendisinde doğrulanabilir.</p>
+                <a href="/neden-kulaktan.html" class="text-link" style="display:inline-block; margin-top:1.5rem;">Hukuki çerçeveyi ve gerekçeleri okuyun →</a>
+            </div>
+            <ul class="bars">
+                <li><strong style="color:var(--ink)">Sunucu tarafında AES-256-GCM şifreleme.</strong> İhbar özeti, uzman mütalaası ve yönetim kurulu kararı veritabanında şifreli olarak saklanır.</li>
+                <li><strong style="color:var(--ink)">Rol bazlı erişim.</strong> Her şirketin admin/uzman/yönetim kurulu hesabı yalnızca kendi kurumunun dosyalarını görebilir.</li>
+                <li><strong style="color:var(--ink)">Değiştirilebilirliği tespit edilebilir denetim izi.</strong> Her işlem zincirleme hash ile kaydedilir; geçmişte bir kayıt değiştirilirse tespit edilir.</li>
+                <li><strong style="color:var(--ink)">Hesap koruması.</strong> Şifreler geri döndürülemez biçimde hash'lenir; tekrarlanan başarısız girişlerde hesap geçici olarak kilitlenir.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="portal" class="hairline-top" style="background:var(--surface);">
+        <div class="container portal-grid">
+            <div>
+                <span class="label" style="display:block; margin-bottom:0.75rem;">GÜVENLİ BİLDİRİM KANALI</span>
+                <h2>İhbar ve Şikayet<br>Bildirim Formu</h2>
+                <p class="mt-4">Aşağıdaki formu doldurarak bildiriminizi gönderin. Gönderim sonrası size verilecek dosya kodu ve erişim anahtarını güvenli bir yerde saklayın — ikisi birlikte olmadan dosyanızın durumunu sorgulayamazsınız.</p>
+                <p id="orgBanner" class="hidden" style="display:inline-block; margin-top:1rem; font-weight:600; font-size:0.88rem; border:1px solid var(--line); border-radius:var(--radius); padding:0.5rem 0.9rem;"></p>
+            </div>
+
+            <form id="caseForm" onsubmit="submitRealCase(event)" class="panel panel-pad">
+                <div class="field-row two">
+                    <div class="field">
+                        <label for="targetCompany">Hedef Kurum / Birim</label>
+                        <input type="text" id="targetCompany" name="targetCompany" required placeholder="Örn. Şirketinizin adı">
+                    </div>
+                    <div class="field">
+                        <label for="category">Bildirim Kategorisi</label>
+                        <select id="category" name="category" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="Finansal Suistimal ve Yolsuzluk">Finansal Suistimal ve Yolsuzluk</option>
+                            <option value="Mobbing / Psikolojik Taciz">Mobbing / Psikolojik Taciz</option>
+                            <option value="Regülasyon ve Uyum İhlali">Regülasyon ve Uyum İhlali</option>
+                            <option value="Çıkar Çatışması">Çıkar Çatışması</option>
+                            <option value="Veri Güvenliği ve Mahremiyet">Veri Güvenliği ve Mahremiyet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="dept">Departman</label>
+                    <input type="text" id="dept" name="dept" placeholder="Örn. Finans / Satınalma" required>
+                </div>
+
+                <div class="field">
+                    <label for="description">Olay Özeti</label>
+                    <textarea id="description" name="description" rows="5" required placeholder="Yaşadığınız durumu detaylıca açıklayınız..."></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="evidence">Kanıt / Belge (İsteğe Bağlı, Maks. 15MB)</label>
+                    <input type="file" id="evidence" name="evidence">
+                </div>
+
+                <button type="submit" id="submitReportBtn" class="btn btn-primary btn-block">Şifreli İhbarı Gönder</button>
+
+                <div class="notice">
+                    <span class="bar brass sm" style="margin-top:3px;"></span>
+                    <span>Gönder butonuna bastığınızda verileriniz şifrelenerek kaydedilecek ve tarafınıza <strong>KLT-XXXX</strong> formatında bir dosya kodu ile bir erişim anahtarı verilecektir.</span>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="/" class="brand" style="margin-bottom:1rem;"><img src="/assets/logo-icon.png" alt="">Kulaktan</a>
+                    <p style="color:rgba(255,255,255,0.6); max-width:36ch;">Kurumsal whistleblowing ve uyum yönetim platformu.</p>
+                </div>
+                <div>
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="#portal">Bildirim Yap</a></li>
+                        <li><a href="/takip.html">Şikayet Takibi</a></li>
+                        <li><a href="/admin.html">Kurumsal Giriş</a></li>
+                        <li><a href="/uzman.html">Bağımsız Uzman</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Kurumsal</h4>
+                    <ul>
+                        <li><a href="/neden-kulaktan.html">Neden Kulaktan?</a></li>
+                        <li><a href="/nasil-calisir.html">Nasıl Çalışır?</a></li>
+                        <li><a href="/fiyatlandirma.html">Fiyatlandırma</a></li>
+                        <li><a href="/sss.html">Sıkça Sorulan Sorular</a></li>
+                        <li><a href="/iletisim.html">İletişim</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>Yasal</h4>
+                    <ul>
+                        <li><a href="/kvkk.html">KVKK Aydınlatma Metni</a></li>
+                        <li><a href="/guvenlik.html">Güvenlik Bilgilendirmesi</a></li>
+                        <li><a href="/kullanim-sartlari.html">Kullanım Şartları</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 Kulaktan. Tüm hakları saklıdır.</span>
+                <span>ISO 37002 ilkeleriyle uyumlu tasarlanmıştır.</span>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast">
+        <span id="toastText">İşleminiz başarıyla gerçekleştirildi.</span>
+    </div>
+
+    <div id="receiptModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <span class="bar line-accent"></span>
+            <h3 style="margin-bottom:0.75rem;">Bildiriminiz Alındı</h3>
+            <p style="margin-bottom:1.5rem;">Verileriniz sunucuda AES-256-GCM ile şifrelenerek kaydedildi. Aşağıdaki bilgileri <strong style="color:var(--ink)">güvenli bir yere kaydedin</strong> — bir daha gösterilmeyecektir.</p>
+
+            <div class="receipt-row">
+                <span class="label">DOSYA KODU</span>
+                <strong id="receiptCode">KLT-2026-XXXX</strong>
+            </div>
+            <div class="receipt-row">
+                <span class="label">ERİŞİM ANAHTARI</span>
+                <strong id="receiptToken" style="font-size:0.85rem;">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</strong>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <a href="/takip.html" class="btn btn-primary" style="flex:1; justify-content:center;">Şikayet Takibine Git</a>
+                <button onclick="closeReceiptModal()" class="btn btn-secondary" style="flex:1;">Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getOrgSlugFromPath() {
+            const m = window.location.pathname.match(/^\/o\/([a-z0-9-]+)/);
+            return m ? m[1] : null;
+        }
+
+        async function loadOrgBanner() {
+            const slug = getOrgSlugFromPath();
+            if (!slug) return;
+            try {
+                const resp = await fetch(`/api/orgs/${slug}`);
+                const data = await resp.json();
+                if (data.success) {
+                    const banner = document.getElementById('orgBanner');
+                    banner.textContent = `Bu güvenli hat ${data.organization.name} içindir.`;
+                    banner.classList.remove('hidden');
+                    if (data.organization.primaryColor) {
+                        const color = data.organization.primaryColor;
+                        banner.style.color = color;
+                        banner.style.borderColor = color;
+                        const btn = document.getElementById('submitReportBtn');
+                        if (btn) btn.style.backgroundColor = color;
+                    }
+                }
+            } catch (err) { /* sessizce yoksay, form yine de varsayılan organizasyona gönderir */ }
+        }
+        loadOrgBanner();
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function submitRealCase(e) {
+            e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+
+            const payload = {
+                company: document.getElementById('targetCompany').value,
+                category: document.getElementById('category').value,
+                department: document.getElementById('dept').value,
+                summary: document.getElementById('description').value,
+                organizationSlug: getOrgSlugFromPath() || 'default',
+            };
+
+            const fileInput = document.getElementById('evidence');
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                if (file.size > 15 * 1024 * 1024) {
+                    showToast('Dosya 15MB sınırını aşıyor.');
+                    submitBtn.disabled = false;
+                    return;
+                }
+                payload.evidenceBase64 = await fileToBase64(file);
+                payload.evidenceFilename = file.name;
+                payload.evidenceMimeType = file.type;
+            }
+
+            try {
+                const response = await fetch('/api/cases', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showReceiptModal(result.code, result.accessToken);
+                    e.target.reset();
+                } else {
+                    showToast('Hata: ' + (result.error || 'Gönderilemedi.'));
+                }
+            } catch (err) {
+                showToast('Sunucu bağlantı hatası. Sunucunun çalıştığından emin olun.');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        function showReceiptModal(code, token) {
+            document.getElementById('receiptCode').textContent = code;
+            document.getElementById('receiptToken').textContent = token;
+            document.getElementById('receiptModal').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+    </script>
+</body>
+</html>

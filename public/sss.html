@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sıkça Sorulan Sorular | Kulaktan</title>
+    <link rel="canonical" href="https://kulaktan.com.tr/sss.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kulaktan">
+    <meta property="og:title" content="Sıkça Sorulan Sorular">
+    <meta property="og:description" content="Kulaktan hakkında en çok sorulan sorular: anonimlik, şifreleme, süreç ve fiyatlandırma.">
+    <meta property="og:url" content="https://kulaktan.com.tr/sss.html">
+    <meta property="og:image" content="https://kulaktan.com.tr/assets/og-image.jpg">
+    <meta property="og:locale" content="tr_TR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sıkça Sorulan Sorular">
+    <meta name="twitter:description" content="Kulaktan hakkında en çok sorulan sorular: anonimlik, şifreleme, süreç ve fiyatlandırma.">
+    <meta name="twitter:image" content="https://kulaktan.com.tr/assets/og-image.jpg">
+    <meta name="description" content="Kulaktan hakkında en çok sorulan sorular: anonimlik, şifreleme, süreç ve fiyatlandırma.">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/kulaktan.css">
+    <style>
+        .page-hero { padding: 3.5rem 0 2.5rem; }
+        .doc { max-width: 760px; }
+        .faq-group { margin-top: 2.5rem; }
+        .faq-group h2 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--brass); font-family: var(--sans); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.8rem; }
+        details {
+            border-bottom: 1px solid var(--line);
+            padding: 1.25rem 0;
+        }
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.02rem;
+            color: var(--ink);
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary::after {
+            content: "+";
+            font-family: var(--serif);
+            font-size: 1.4rem;
+            color: var(--brass);
+            flex-shrink: 0;
+            transition: transform 150ms ease;
+        }
+        details[open] summary::after { content: "–"; }
+        details p { margin-top: 0.9rem; margin-bottom: 0; max-width: none; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header hairline">
+        <div class="container">
+            <a href="/" class="brand"><img src="/assets/logo-icon.png" alt="">Kulaktan</a>
+            <nav class="site-nav">
+                <a href="/#portal" class="text-link">Bildirim Yap</a>
+                <a href="/takip.html" class="text-link">Şikayet Takibi</a>
+                <a href="/admin.html" class="text-link">Kurumsal Giriş</a>
+                <a href="/uzman.html" class="text-link">Bağımsız Uzman</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="container">
+            <span class="bar line-accent" style="width:44px;"></span>
+            <h1 style="font-size:2.4rem;">Sıkça Sorulan Sorular</h1>
+            <p class="lede mt-2">Sistemi kullanmadan önce merak edilenler — dürüst cevaplarla.</p>
+
+            <div class="doc">
+                <div class="faq-group">
+                    <h2>Anonimlik ve Güvenlik</h2>
+
+                    <details open>
+                        <summary>Bildirimim gerçekten anonim mi?</summary>
+                        <p>Evet. Bildirim yaparken herhangi bir kimlik bilgisi girmenize gerek yoktur. Sistem sizi yalnızca gönderim sırasında oluşturulan bir dosya kodu ve erişim anahtarıyla tanır — bu ikisi birbirinden bağımsızdır ve kimliğinizle eşleştirilmez.</p>
+                    </details>
+
+                    <details>
+                        <summary>Şirketim veya sistem yöneticisi IP adresimi görebilir mi?</summary>
+                        <p>Hayır. Sistem, gönderdiğiniz raporu IP adresinizle veya cihaz bilgilerinizle ilişkilendirmez; bu bilgiler veritabanına kaydedilmez, admin veya uzman panelinde görüntülenmez.</p>
+                    </details>
+
+                    <details>
+                        <summary>"Uçtan uca şifreleme" mi kullanılıyor?</summary>
+                        <p>Hayır, ve bunu net söylemek isteriz: şifreleme sunucu tarafında, AES-256-GCM ile yapılır. Bunun nedeni basit — atanan bağımsız uzmanın ve yetkili admin'in raporunuzu okuyabilmesi gerekir, aksi halde inceleme süreci işleyemez. Teknik detaylar için <a href="/guvenlik.html" class="text-link">Güvenlik Bilgilendirmesi</a> sayfasına bakabilirsiniz.</p>
+                    </details>
+
+                    <details>
+                        <summary>Anonimliğin bir sınırı var mı?</summary>
+                        <p>Evet, tek bir istisna ile: Türk Ceza Kanunu m. 278–280 kapsamında "suçu bildirmeme suçu" gibi kanuni bir yükümlülük doğarsa, yetkili mercilere bildirim yapılabilir. Bunun dışında bildirim içeriği kurum dışına çıkmaz. Detaylar için <a href="/nasil-calisir.html" class="text-link">Nasıl Çalışır?</a> sayfasına bakabilirsiniz.</p>
+                    </details>
+                </div>
+
+                <div class="faq-group">
+                    <h2>Süreç</h2>
+
+                    <details>
+                        <summary>Bildirimimi gönderdikten sonra ne oluyor?</summary>
+                        <p>Kurumunuzun yetkilisi dosyayı görür ve bağımsız bir uzmana atar. Uzman dosyayı inceler, gerekirse sizinle kimliğinizi açığa çıkarmadan yazışır ve bir hukuki mütalaa sunar. Son olarak yönetim kurulu kararını verir. Tüm süreci <a href="/takip.html" class="text-link">Şikayet Takibi</a> sayfasından, dosya kodunuz ve erişim anahtarınızla izleyebilirsiniz.</p>
+                    </details>
+
+                    <details>
+                        <summary>Ne kadar sürede geri dönüş alırım?</summary>
+                        <p>2019/1937 sayılı AB Direktifi, ilk teyidin 7 gün içinde, sürecin sonucunun ise 3 ay içinde bildirilmesini öngörür — kurumların benimsediği hedef süre budur. Kesin süre, vakanın karmaşıklığına göre değişebilir.</p>
+                    </details>
+
+                    <details>
+                        <summary>Kanıt/belge yükleyebilir miyim?</summary>
+                        <p>Evet, bildirim formunda isteğe bağlı olarak dosya ekleyebilirsiniz. Desteklenen türler: PDF, Word, Excel, resim (PNG/JPEG/WEBP), metin/CSV. Dosya boyutu en fazla 15MB olabilir.</p>
+                    </details>
+
+                    <details>
+                        <summary>Dosya kodumu veya erişim anahtarımı kaybedersem ne olur?</summary>
+                        <p>Bu bilgiler sadece bildirim anında bir kez gösterilir ve güvenlik nedeniyle sistemde başka hiçbir yerde saklanmaz — kaybedilirse dosyanıza tekrar erişilemez. Bu yüzden gönderim sonrası ekrana gelen bilgileri mutlaka güvenli bir yere not almanızı öneririz.</p>
+                    </details>
+                </div>
+
+                <div class="faq-group">
+                    <h2>Kurumlar İçin</h2>
+
+                    <details>
+                        <summary>Hangi ölçekteki şirketler Kulaktan kullanabilir?</summary>
+                        <p>Platform, her ölçekteki şirket için çoklu şirket (multi-tenant) mimarisiyle çalışır — her müşterinin kendi ihbar formu, kendi admin/uzman/yönetim kurulu hesapları ve birbirinden tamamen izole verisi olur.</p>
+                    </details>
+
+                    <details>
+                        <summary>Fiyatlandırma nasıl işliyor?</summary>
+                        <p><a href="/fiyatlandirma.html" class="text-link">Fiyatlandırma</a> sayfamızda modeli detaylıca anlatıyoruz: yıllık abonelik, vaka bazlı ekspertiz bedeli ve isteğe bağlı ek hizmetler. Kesin teklif için bizimle iletişime geçebilirsiniz.</p>
+                    </details>
+
+                    <details>
+                        <summary>Kendi hukuk/uyum ekibimizi kullanabilir miyiz, yoksa uzman siz mi sağlıyorsunuz?</summary>
+                        <p>Her ikisi de mümkün. Kendi bünyenizdeki uyum yöneticinizi admin olarak, bağımsız avukat/denetçilerinizi uzman olarak tanımlayabilirsiniz; isterseniz soruşturma yönetimini talep üzerine biz de üstlenebiliriz.</p>
+                    </details>
+                </div>
+            </div>
+
+            <div class="cta-box" style="background:var(--ink); color:#fff; border-radius:var(--radius); padding:2.5rem; margin-top:3rem; text-align:center;">
+                <h2 style="color:#fff; font-size:1.4rem; margin-bottom:0.75rem;">Başka bir sorunuz mu var?</h2>
+                <p style="color:rgba(255,255,255,0.75); margin-bottom:1.5rem;">Doğrudan bize yazın, size dönelim.</p>
+                <a href="/iletisim.html" class="btn btn-brass">İletişime Geçin</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="container footer-bottom" style="border-top:none; padding-top:0;">
+            <span>© 2026 Kulaktan. Tüm hakları saklıdır.</span>
+            <a href="/" class="text-link">Ana Sayfaya Dön</a>
+        </div>
+    </footer>
+</body>
+</html>

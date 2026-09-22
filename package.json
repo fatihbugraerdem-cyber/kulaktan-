@@ -1,0 +1,17 @@
+{
+  "name": "kulaktan",
+  "version": "1.0.0",
+  "description": "Kulaktan — anonim ihbar / whistleblowing ve uyum yönetim platformu",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "seed": "node --env-file=.env lib/seed.js",
+    "genkey": "node lib/gen-key.js"
+  },
+  "dependencies": {},
+  "license": "UNLICENSED",
+  "private": true
+}

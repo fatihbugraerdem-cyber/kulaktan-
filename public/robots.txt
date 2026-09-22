@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /uzman.html
+Disallow: /board.html
+Disallow: /superadmin.html
+Disallow: /reset-password.html
+Disallow: /app.html
+Disallow: /api/
+
+Sitemap: https://kulaktan.com.tr/sitemap.xml
