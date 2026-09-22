@@ -205,11 +205,17 @@
             const headers = { 'Content-Type': 'application/json' };
             if (opts.method && opts.method !== 'GET') headers['X-CSRF-Token'] = getCsrfToken();
             const resp = await fetch(path, { headers, ...opts });
-            const data = await resp.json();
-            if (!resp.ok || !data.success) throw new Error(data.error || 'İstek başarısız oldu.');
-            return data;
-        }
+            const text = await resp.text();
+            let data = {};
+    try {
+        data = text ? JSON.parse(text) : {};
+    } catch (e) {
+        throw new Error('Sunucudan geçersiz yanıt alındı: ' + text);
+    }
 
+    if (!resp.ok || !data.success) throw new Error(data.error || 'İstek başarısız oldu.');
+    return data;
+}
         let orgsCache = [];
 
         async function handleLogin(e) {
